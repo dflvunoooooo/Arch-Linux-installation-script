@@ -84,7 +84,7 @@ echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
 echo "de_DE.UTF-8 UTF-8" > /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 
-wget -q -O - https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
+wget -q https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
 echo KEYMAP=neo > /mnt/etc/vconsole.conf
 
 arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
