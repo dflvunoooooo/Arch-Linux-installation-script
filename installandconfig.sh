@@ -2,8 +2,8 @@
 # WARNING: this script will destroy data on the selected disk.
 # This script can be run by executing the following:
 #   curl -sL https://git.io/JeRYd | bash
-#set -uo pipefail
-#trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+set -uo pipefail
+trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
@@ -13,6 +13,20 @@ clear
 user=$(dialog --stdout --inputbox "Enter admin username" 0 0) || exit 1
 clear
 : ${user:?"user cannot be empty"}
+
+user_password=$(dialog --stdout --passwordbox "Enter admin password" 0 0) || exit 1
+clear
+: ${user_password:?"password cannot be empty"}
+user_password2=$(dialog --stdout --passwordbox "Enter admin password again" 0 0) || exit 1
+clear
+[[ "$user_password" == "$user_password2" ]] || ( printf "Passwords did not match"; exit 1; )
+
+root_password=$(dialog --stdout --passwordbox "Enter root password" 0 0) || exit 1
+clear
+: ${root_password:?"password cannot be empty"}
+root_password2=$(dialog --stdout --passwordbox "Enter root password again" 0 0) || exit 1
+clear
+[[ "$root_password" == "$root_password2" ]] || ( printf "Passwords did not match"; exit 1; )
 
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
 device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
@@ -55,7 +69,7 @@ cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 pacman -Sy --noconfirm reflector
 reflector --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager wget man
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 printf "${hostname}" > /mnt/etc/hostname
 
@@ -80,14 +94,13 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-wget -q https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
-printf "KEYMAP=neo" > /mnt/etc/vconsole.conf
+printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
 
-printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_TIME=de_DE.UTF-8\nLC_MONETARY=de_DE.UTF-8\nLC_NUMERIC=de_DE.UTF-8\nLC_CTYPE=de_DE.UTF-8\nLC_MESSAGES=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=de_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
-printf "de_DE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_MONETARY=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=declzffwclzffw_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
+sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 
-arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
+arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,games,input -s /bin/bash "$user"
 
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
@@ -97,3 +110,7 @@ arch-chroot /mnt passwd -d "$user"
 arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
 arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
 sed -i '$d' /mnt/etc/sudoers
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
+
+arch-chroot /mnt 'printf "'$root_password'\n'$root_password'" | passwd root'
+arch-chroot /mnt 'printf "'$user_password'\n'$user_password'" | passwd "$user"'
