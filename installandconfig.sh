@@ -5,10 +5,6 @@
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
-### Set keyboard to german-neo
-#wget https://svn.neo-layout.org/linux/console/neo.map -o /usr/share/kbd/keymaps/i386/qwertz/neo.map
-#setxkbmap de neo -option
-
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
@@ -18,26 +14,9 @@ user=$(dialog --stdout --inputbox "Enter admin username" 0 0) || exit 1
 clear
 : ${user:?"user cannot be empty"}
 
-password=$(dialog --stdout --passwordbox "Enter admin password" 0 0) || exit 1
-clear
-: ${password:?"password cannot be empty"}
-password2=$(dialog --stdout --passwordbox "Enter admin password again" 0 0) || exit 1
-clear
-[[ "$password" == "$password2" ]] || ( echo "Passwords did not match"; exit 1; )
-
-password3=$(dialog --stdout --passwordbox "Enter root password" 0 0) || exit 1
-clear
-: ${password3:?"password cannot be empty"}
-password4=$(dialog --stdout --passwordbox "Enter root password again" 0 0) || exit 1
-clear
-[[ "$password3" == "$password4" ]] || ( echo "Passwords did not match"; exit 1; )
-
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
 device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
 clear
-
-### Set up logging ###
-
 
 timedatectl set-ntp true
 
@@ -105,15 +84,10 @@ echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
 echo "de_DE.UTF-8 UTF-8" > /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 
-#wget https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
-#echo "KEYMAP=neo" > /mnt/etc/vconsole.conf
-
 arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
-
-arch-chroot /mnt passwd "$user" \
-  "$password"
-arch-chroot /mnt passwd \
-  "$password3"
 
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
+
+git -C /mnt/home/"$user" clone https://aur.archlinux.org/aurman.git 
+arch-chroot /mnt cd /mnt/home/"$user" && sudo -u "$user" makepkg -si --skippgpcheck 
