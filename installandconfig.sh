@@ -55,9 +55,9 @@ cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 pacman -Sy --noconfirm reflector
 reflector --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi networkmanager
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi gitquäiwcuq networkmanager
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
-echo "${hostname}" > /mnt/etc/hostname
+printf "${hostname}" > /mnt/etc/hostname
 
 cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
@@ -80,18 +80,19 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-echo "LANG=de_DE.UTF-8" > /mnt/etc/locale.conf
-echo "de_DE.UTF-8 UTF-8" > /mnt/etc/locale.gen
+printf -e "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_TIME=de_DE.UTF-8\nLC_MONETARY=de_DE.UTF-8\nLC_NUMERIC=de_DE.UTF-8\nLC_CTYPE=de_DE.UTF-8\nLC_MESSAGES=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=de_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
+printf "de_DE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 
 wget -q https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
-echo KEYMAP=neo > /mnt/etc/vconsole.conf
+printf "KEYMAP=neo > /mnt/etc/vconsole.conf"
 
 arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
 
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
 
+printf 'ALL=(ALL) ALL\n' | tee -a /mnt/etc/sudoers
 arch-chroot /mnt sudo -u "$user" git -C /mnt/home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
-arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
-
+arch-chroot /mnt sudo -u "$user" sh -c "cd /mnt/home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
+sed -i '$d' /mnt/etc/sudoers
