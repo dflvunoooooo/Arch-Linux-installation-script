@@ -92,7 +92,8 @@ arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,g
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
 
-printf 'ALL=(ALL) ALL\n' | tee -a /mnt/etc/sudoers
-arch-chroot /mnt sudo -u "$user" git -C /mnt/home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
-arch-chroot /mnt sudo -u "$user" sh -c "cd /mnt/home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
+printf "$user ALL=(ALL) ALL" >> /mnt/etc/sudoers
+arch-chroot /mnt passwd -d "$user"
+arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
+arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
 sed -i '$d' /mnt/etc/sudoers
