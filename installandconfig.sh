@@ -37,8 +37,8 @@ device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) 
 clear
 
 ### Set up logging ###
-exec 1> >(tee "stdout.log")
-exec 2> >(tee "stderr.log")
+#exec 1> >(tee "stdout.log")
+#exec 2> >(tee "stderr.log")
 
 timedatectl set-ntp true
 
