@@ -110,8 +110,10 @@ arch-chroot /mnt locale-gen
 
 arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
 
-echo "$user:$password" | chpasswd --root /mnt
-echo "root:$password3" | chpasswd --root /mnt 
+arch-chroot /mnt passwd "$user" \
+  "$password"
+arch-chroot /mnt passwd \
+  "$password3"
 
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
