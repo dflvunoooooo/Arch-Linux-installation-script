@@ -6,8 +6,8 @@ set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 ### Set keyboard to german-neo
-wget https://svn.neo-layout.org/linux/console/neo.map -o /usr/share/kbd/keymaps/i386/qwertz/neo.map
-setxkbmap de neo -option
+#wget https://svn.neo-layout.org/linux/console/neo.map -o /usr/share/kbd/keymaps/i386/qwertz/neo.map
+#setxkbmap de neo -option
 
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
