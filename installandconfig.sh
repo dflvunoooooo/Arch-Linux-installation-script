@@ -80,12 +80,12 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
-printf -e "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_TIME=de_DE.UTF-8\nLC_MONETARY=de_DE.UTF-8\nLC_NUMERIC=de_DE.UTF-8\nLC_CTYPE=de_DE.UTF-8\nLC_MESSAGES=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=de_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
-printf "de_DE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
-arch-chroot /mnt locale-gen
-
 wget -q https://svn.neo-layout.org/linux/console/neo.map -o /mnt/usr/share/kbd/keymaps/i386/qwertz/neo.map
 printf "KEYMAP=neo" > /mnt/etc/vconsole.conf
+
+printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_TIME=de_DE.UTF-8\nLC_MONETARY=de_DE.UTF-8\nLC_NUMERIC=de_DE.UTF-8\nLC_CTYPE=de_DE.UTF-8\nLC_MESSAGES=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=de_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
+printf "de_DE.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+arch-chroot /mnt locale-gen
 
 arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,games,input "$user"
 
