@@ -92,5 +92,6 @@ arch-chroot /mnt useradd -m -g users -s /bin/bash -G wheel,video,audio,storage,g
 arch-chroot /mnt systemctl enable avahi-daemon
 arch-chroot /mnt systemctl enable NetworkManager.service
 
-git -C /mnt/home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
-arch-chroot /mnt cd /mnt/home/"$user" && sudo -u "$user" makepkg -si --skippgpcheck
+arch-chroot /mnt sudo -u "$user" git -C /mnt/home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
+arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
+
