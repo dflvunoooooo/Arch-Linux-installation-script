@@ -113,8 +113,8 @@ sed -i '$d' /mnt/etc/sudoers
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
 
 arch-chroot /mnt <<EOF 
-printf "'$root_password'\n'$root_password'" &> passwd root
+printf "'$root_password'\n'$root_password'" | passwd root
 EOF
 arch-chroot /mnt <<EOF 
-printf "'$user_password'\n'$user_password'" &> passwd "$user"
+printf "'$user_password'\n'$user_password'" | passwd "$user"
 EOF
