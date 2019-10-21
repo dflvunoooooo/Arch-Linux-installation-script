@@ -112,5 +112,7 @@ arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --s
 sed -i '$d' /mnt/etc/sudoers
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
 
-arch-chroot /mnt 'printf "'$root_password'\n'$root_password'" | passwd root'
+arch-chroot /mnt <<EOF 
+printf "'$root_password'\n'$root_password'" | passwd root
+EOF
 arch-chroot /mnt 'printf "'$user_password'\n'$user_password'" | passwd "$user"'
