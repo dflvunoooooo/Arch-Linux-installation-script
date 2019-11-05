@@ -103,7 +103,7 @@ cat <<EOF > /mnt/etc/systemd/system/ip-to-etc_issue.service
 [Unit]
 Description=Write IP Adresses to /etc/issue
 Wants=network-online.target
-After=network-online.target
+After=network.target network-online.target
 
 [Service]
 ExecStart=/bin/sh /scripte/ip-to-etc_issue.sh
