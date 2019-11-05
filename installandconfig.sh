@@ -91,12 +91,13 @@ sed -i 's|#Banner none|Banner /etc/issue|g' /mnt/etc/ssh/sshd_config
 
 ## SSH modification to show ip at login
 mkdir /mnt/scripte
-cat <<EOF > /mnt/scripte/ip-to-etc_issue.sh
+cat <<\EOF > /mnt/scripte/ip-to-etc_issue.sh
  #!/bin/bash
 localip=$(hostname -i)
 globalip=$(curl https://ipinfo.io/ip)
-printf "\nlocal IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
+printf "local IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
 EOF
+chmod +x /mnt/scripte/ip-to-etc_issue.sh
 cat <<EOF > /mnt/etc/systemd/system/ip-to-etc_issue.service
 [Unit]
 Description=Write IP Adresses to /etc/issue
@@ -104,7 +105,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/scripte/ip-to-etc_issue.sh
+ExecStart=/bin/sh /scripte/ip-to-etc_issue.sh
 
 [Install]
 WantedBy=default.target
@@ -118,13 +119,13 @@ arch-chroot /mnt bootctl --path=/boot install
 cat <<EOF > /mnt/boot/loader/loader.conf
 default arch
 EOF
-
+root_uuid=$(blkid -s UUID -o value "$part_root")
 cat <<EOF > /mnt/boot/loader/entries/arch.conf
 title    Arch Linux
 linux    /vmlinuz-linux
 initrd   /intel-ucode.img
 initrd   /initramfs-linux.img
-options  root=UUID=$(blkid -s UUID -o value "$part_root") rw
+options  root=UUID=$root_uuid rw
 EOF
 
 ## Reflector Configuration 
@@ -178,5 +179,8 @@ EOF
 arch-chroot /mnt <<EOF 
 printf "$user_password\n$user_password" | passwd "$user"
 EOF
+
+## Delete bash history to erase passwords
+arch-chroot /mnt history -c
 
 printf "\n############################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\n############################################################################\n"
