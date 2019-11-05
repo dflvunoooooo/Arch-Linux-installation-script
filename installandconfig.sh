@@ -92,7 +92,6 @@ sed -i 's|#Banner none|Banner /etc/issue|g' /mnt/etc/ssh/sshd_config
 ## SSH modification to show ip at login
 mkdir /mnt/scripte
 cat <<EOF > /scripte/ip-to-etc_issue.sh
-#!/bin/bash
 localip=$(hostname -i)
 globalip=$(curl https://ipinfo.io/ip)
 printf "\nlocal IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
