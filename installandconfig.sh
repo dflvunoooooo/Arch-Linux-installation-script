@@ -95,6 +95,7 @@ cat <<\EOF > /mnt/scripte/ip-to-etc_issue.sh
  #!/bin/bash
 localip=$(hostname -i)
 globalip=$(curl https://ipinfo.io/ip)
+sed -i "2,4d" /etc/issue
 printf "local IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
 EOF
 chmod +x /mnt/scripte/ip-to-etc_issue.sh
