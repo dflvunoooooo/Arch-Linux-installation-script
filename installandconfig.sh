@@ -69,15 +69,52 @@ cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 pacman -Sy --noconfirm reflector
 reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager wget man
-genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
-printf "${hostname}" > /mnt/etc/hostname
+## Install Arch Linux and a few packages
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager wget man openssh
 
-cp /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
+## Basic system configuration
+genfstab -U /mnt >> /mnt/etc/fstab
+printf "${hostname}" > /mnt/etc/hostname
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
+printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_MONETARY=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=declzffwclzffw_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
+sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
+arch-chroot /mnt locale-gen
+mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
-arch-chroot /mnt bootctl --path=/boot install
+## SSH configuration
+printf "AllowUsers  $user" >> /mnt/etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /mnt/etc/ssh/sshd_config
+sed -i 's/#Port 22/Port 22222/g' /mnt/etc/ssh/sshd_config
+sed -i 's|#Banner none|Banner /etc/issue|g' /mnt/etc/ssh/sshd_config
 
+## SSH modification to show ip at login
+mkdir /mnt/scripte
+cat <<EOF > /scripte/ip-to-etc_issue.sh
+#!/bin/bash
+localip=$(hostname -i)
+globalip=$(curl https://ipinfo.io/ip)
+printf "\nlocal IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
+EOF
+cat <<EOF > /mnt/etc/systemd/system/ip-to-etc_issue.service
+[Unit]
+Description=Write IP Adresses to /etc/issue
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/scripte/ip-to-etc_issue.sh
+
+[Install]
+WantedBy=default.target
+EOF
+
+## Sudo configuration
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
+
+## Install and config bootloader
+arch-chroot /mnt bootctl --path=/boot install
 cat <<EOF > /mnt/boot/loader/loader.conf
 default arch
 EOF
@@ -90,22 +127,8 @@ initrd   /initramfs-linux.img
 options  root=UUID=$(blkid -s UUID -o value "$part_root") rw
 EOF
 
-genfstab -U /mnt >> /mnt/etc/fstab
-
-arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
-printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
-
-printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_MONETARY=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=declzffwclzffw_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
-sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
-arch-chroot /mnt locale-gen
-
-arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,games,input -s /bin/bash "$user"
-
-arch-chroot /mnt systemctl enable avahi-daemon.service
-arch-chroot /mnt systemctl enable NetworkManager.service
-
-cat <<EOF > /etc/systemd/system/reflector.service
+## Reflector Configuration 
+cat <<EOF > /mnt/etc/systemd/system/reflector.service
 [Unit]
 Description=Pacman mirrorlist update
 Wants=network-online.target
@@ -118,7 +141,7 @@ ExecStart=/usr/bin/reflector  --protocol https --country 'Germany' --country 'Ro
 [Install]
 RequiredBy=multi-user.target
 EOF
-cat <<EOF > /etc/systemd/system/reflector.service
+cat <<EOF > /mnt/etc/systemd/system/reflector.timer
 [Unit]
 Description=Run reflector weekly
 
@@ -130,20 +153,30 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOF
+
+## Add User
+arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
+
+## Systemd activieren
+arch-chroot /mnt systemctl enable avahi-daemon.service
+arch-chroot /mnt systemctl enable NetworkManager.service
+arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable reflector.timer
-arch-chroot /mnt systemctl start reflector.timer
+arch-chroot /mnt systemctl enable ip-to-etc_issue.service
 
-
-printf "$user ALL=(ALL) ALL" >> /mnt/etc/sudoers
+## Install aurman
+## remove password of user so sudo -u will not ask for password
 arch-chroot /mnt passwd -d "$user"
+## Now git and install
 arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
 arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
-sed -i '$d' /mnt/etc/sudoers
-sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
 
+## Password for root and user
 arch-chroot /mnt <<EOF 
 printf "$root_password\n$root_password" | passwd root
 EOF
 arch-chroot /mnt <<EOF 
 printf "$user_password\n$user_password" | passwd "$user"
 EOF
+
+printf "\n############################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\n############################################################################\n"
