@@ -87,8 +87,15 @@ reflector  --protocol https --country 'Germany' --country 'Romania' --country 'U
 ## Install Arch Linux and a few packages
 pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager wget man openssh
 
-## Basic system configuration
+## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
+if [ "$ssd" = "yes" ]; then
+  cat <<EOF >> /mnt/etc/fstab
+
+# Temoräro Dateien in den RAM
+tmpfs /tmp tmpfs defauts,noatime,mode=1777 0 0
+EOF
+fi
 printf "${hostname}" > /mnt/etc/hostname
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
@@ -180,6 +187,7 @@ arch-chroot /mnt systemctl enable NetworkManager.service
 arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable reflector.timer
 arch-chroot /mnt systemctl enable ip-to-etc_issue.service
+arch-chroot /mnt systemctl enable fstrim.timer
 
 ## Install aurman
 ## remove password of user so sudo -u will not ask for password
