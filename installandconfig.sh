@@ -6,6 +6,14 @@ set -uo pipefail
 trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 ### Get infomation from user ###
+encrypt=$(dialog --stdout --inputbox "Do you want a fully encrypted setup (type 'yes' or 'no')?" 0 0) || exit 1
+clear
+: ${encrypt:?"You have to answer!"}
+
+ssd=$(dialog --stdout --inputbox "Do you install on an SSD (type 'yes' or 'no')? (If so, we will only use 90% of available diskspace.)" 0 0) || exit 1
+clear
+: ${ssd:?"You have to answer!"}
+
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
 : ${hostname:?"hostname cannot be empty"}
@@ -34,6 +42,13 @@ clear
 
 timedatectl set-ntp true
 
+## Set the size of root to either 100% or 90%
+if [ "$ssd" = "yes" ]; then
+               root_size="90%"
+            else
+               root_size="100%"
+            fi
+
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
 swap_end=$(( $swap_size + 2048 + 1 ))MiB
@@ -42,7 +57,7 @@ parted --script ${device} -- mklabel gpt \
   mkpart ESP fat32 1Mib 2GiB \
   set 1 boot on \
   mkpart primary linux-swap 2GiB ${swap_end} \
-  mkpart primary ext4 ${swap_end} 100%
+  mkpart primary ext4 ${swap_end} $root_size
 
 # Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
 # but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
