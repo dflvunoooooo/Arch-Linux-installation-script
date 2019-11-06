@@ -205,6 +205,7 @@ printf "$user_password\n$user_password" | passwd "$user"
 EOF
 
 ## Delete bash history to erase passwords
-arch-chroot /mnt history -c
+# not working
+# arch-chroot /mnt history -c
 
 printf "\n############################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\n############################################################################\n"
