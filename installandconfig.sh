@@ -93,7 +93,7 @@ if [ "$ssd" = "yes" ]; then
   cat <<EOF >> /mnt/etc/fstab
 
 # Temoräro Dateien in den RAM
-tmpfs /tmp tmpfs defauts,noatime,mode=1777 0 0
+tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 EOF
 fi
 printf "${hostname}" > /mnt/etc/hostname
