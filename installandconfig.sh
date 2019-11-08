@@ -125,29 +125,6 @@ HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
 EOF
 sed -i 's|#Banner none|Banner /etc/issue|g' /mnt/etc/ssh/sshd_config
 
-## SSH modification to show ip at login
-mkdir /mnt/scripte
-cat <<\EOF > /mnt/scripte/ip-to-etc_issue.sh
- #!/bin/bash
-localip=$(hostname -i)
-globalip=$(curl https://ipinfo.io/ip)
-sed -i "2,4d" /etc/issue
-printf "local IP: $localip\nglobal IP: $globalip\n" >> /etc/issue
-EOF
-chmod +x /mnt/scripte/ip-to-etc_issue.sh
-cat <<EOF > /mnt/etc/systemd/system/ip-to-etc_issue.service
-[Unit]
-Description=Write IP Adresses to /etc/issue
-Wants=network-online.target
-After=network.target network-online.target
-
-[Service]
-ExecStart=/bin/sh /scripte/ip-to-etc_issue.sh
-
-[Install]
-WantedBy=default.target
-EOF
-
 ## Sudo configuration
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
 
@@ -164,6 +141,10 @@ initrd   /intel-ucode.img
 initrd   /initramfs-linux.img
 options  root=UUID=$root_uuid rw
 EOF
+
+## Neofetch configuration
+curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
+printf "\nneofetch" >>/mnt/home/$user/.bashrc
 
 ## Reflector Configuration 
 cat <<EOF > /mnt/etc/systemd/system/reflector.service
