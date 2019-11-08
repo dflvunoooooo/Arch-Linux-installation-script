@@ -143,6 +143,7 @@ options  root=UUID=$root_uuid rw
 EOF
 
 ## Neofetch configuration
+arch-chroot /mnt sudo -u "$user" mkdir ~/.config/neofetch/config
 curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
 printf "\nneofetch" >>/mnt/home/$user/.bashrc
 
