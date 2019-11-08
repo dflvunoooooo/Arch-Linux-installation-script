@@ -85,13 +85,12 @@ pacman -Sy --noconfirm reflector
 reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
 
 ## Install Arch Linux and a few packages
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git networkmanager wget man openssh htop
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git wget man openssh htop
 
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
 if [ "$ssd" = "yes" ]; then
   cat <<EOF >> /mnt/etc/fstab
-
 # Temoräro Dateien in den RAM
 tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 EOF
@@ -104,6 +103,15 @@ sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+## Network configuration for DHCP via sysemd-network (see arch wiki)
+cat <<\EOF > /mnt//etc/systemd/network/20-wired.network
+[Match]
+Name=en*
+
+[Network]
+DHCP=ipv4
+EOF
 
 ## SSH configuration
 printf "AllowUsers  $user" >> /mnt/etc/ssh/sshd_config
@@ -183,7 +191,8 @@ arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bas
 
 ## Systemd activieren
 arch-chroot /mnt systemctl enable avahi-daemon.service
-arch-chroot /mnt systemctl enable NetworkManager.service
+arch-chroot /mnt systemctl enable systemd-networkd.service
+arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable reflector.timer
 arch-chroot /mnt systemctl enable ip-to-etc_issue.service
