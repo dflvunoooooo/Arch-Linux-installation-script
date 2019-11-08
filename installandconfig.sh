@@ -105,7 +105,7 @@ mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 ## Network configuration for DHCP via sysemd-network (see arch wiki)
-cat <<\EOF > /mnt//etc/systemd/network/20-wired.network
+cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
 [Match]
 Name=en*
 
@@ -217,4 +217,4 @@ EOF
 # not working
 # arch-chroot /mnt history -c
 
-printf "\n############################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\n############################################################################\n"
+printf "\n######################################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\nYou should check that the network interface name matches that in /etc/systemd/network/20-wired.network\n\n######################################################################################\n"
