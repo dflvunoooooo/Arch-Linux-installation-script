@@ -183,7 +183,6 @@ arch-chroot /mnt systemctl enable systemd-networkd.service
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable reflector.timer
-arch-chroot /mnt systemctl enable ip-to-etc_issue.service
 arch-chroot /mnt systemctl enable fstrim.timer
 
 ## Install aurman
