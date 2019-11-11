@@ -51,29 +51,23 @@ if [ "$ssd" = "yes" ]; then
 
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-swap_end=$(( $swap_size + 2048 + 1 ))MiB
 
 parted --script ${device} -- mklabel gpt \
   mkpart ESP fat32 1Mib 2GiB \
   set 1 boot on \
-  mkpart primary linux-swap 2GiB ${swap_end} \
   mkpart primary ext4 ${swap_end} $root_size
 
 # Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
 # but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
 part_boot="$(ls ${device}* | grep -E "^${device}p?1$")"
-part_swap="$(ls ${device}* | grep -E "^${device}p?2$")"
 part_root="$(ls ${device}* | grep -E "^${device}p?3$")"
 
 wipefs "${part_boot}"
-wipefs "${part_swap}"
 wipefs "${part_root}"
 
 mkfs.vfat -F32 "${part_boot}"
-mkswap "${part_swap}"
 mkfs.ext4 "${part_root}"
 
-swapon "${part_swap}"
 mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
@@ -89,12 +83,20 @@ pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion n
 
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
+### Swap file creation
+fallocate -l 8G /mnt/swap
+chmod 600 /mnt/swap
+mkswap /mnt/swap
+printf "/swap\tnone\tswap\tdefaults\t0\t0" >> /mnt/etc/fstab
+printf "vm.swappiness=1" >> /mnt/etc/sysctl.d/99-sysctl.conf
+### /tmp in RAM
 if [ "$ssd" = "yes" ]; then
   cat <<EOF >> /mnt/etc/fstab
 # Temoräro Dateien in den RAM
 tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 EOF
 fi
+### Localisation
 printf "${hostname}" > /mnt/etc/hostname
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
