@@ -108,6 +108,17 @@ sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+### Run Makepkg in RAM
+sed -i 's+#BUILDDIR=/tmp/makepkg+BUILDDIR=/tmp/makepkg+g' /mnt/etc/makepkg.conf
+### Change I/O scheduler, depending on whether the disk is rotating or not
+cat <<\EOF > /mnt/etc/udev/rules.d/60-ioschedulers.rules
+# set scheduler for NVMe
+ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/scheduler}="none"
+# set scheduler for SSD and eMMC
+ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+# set scheduler for rotating disks
+ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+EOF
 
 ## Network configuration for DHCP via sysemd-network (see arch wiki)
 cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
@@ -116,6 +127,42 @@ Name=en*
 
 [Network]
 DHCP=ipv4
+EOF
+
+## Quickening IP/TCP
+cat <<\EOF > /mnt/etc/sysctl.d/99-sysctl.conf
+# https://wiki.archlinux.org/index.php/Sysctl#Improving_performance
+# IP/TCP quickening
+net.core.netdev_max_backlog = 100000
+net.core.netdev_budget = 50000
+net.core.netdev_budget_usecs = 5000
+net.core.somaxconn = 1024
+net.core.rmem_default = 1048576
+net.core.rmem_max = 16777216
+net.core.wmem_default = 1048576
+net.core.wmem_max = 16777216
+net.core.optmem_max = 65536
+net.ipv4.tcp_rmem = 4096 1048576 2097152
+net.ipv4.tcp_wmem = 4096 65536 16777216
+net.ipv4.udp_rmem_min = 8192
+net.ipv4.udp_wmem_min = 8192
+net.ipv4.tcp_fastopen = 3
+net.ipv4.tcp_max_syn_backlog = 30000
+net.ipv4.tcp_max_tw_buckets = 2000000
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_slow_start_after_idle = 0
+net.ipv4.tcp_keepalive_time = 60
+net.ipv4.tcp_keepalive_intvl = 10
+net.ipv4.tcp_keepalive_probes = 6
+net.ipv4.tcp_mtu_probing = 1
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_syncookies = 1
+# IP Stack hardening
+net.ipv4.tcp_rfc1337 = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.rp_filter = 1
 EOF
 
 ## SSH configuration
