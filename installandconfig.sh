@@ -79,10 +79,13 @@ pacman -Sy --noconfirm reflector
 reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
 
 ## Install Arch Linux and a few packages
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git wget man openssh neofetch htop
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git wget man openssh neofetch htop smartmontools
 
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
+if [ "$ssd" = "yes" ]; then
+  sed -i 's/relatime/noatime/g' /mnt/etc/fstab
+fi
 ### Swap file creation
 fallocate -l 8G /mnt/swap
 chmod 600 /mnt/swap
@@ -184,8 +187,18 @@ arch-chroot /mnt systemctl enable avahi-daemon.service
 arch-chroot /mnt systemctl enable systemd-networkd.service
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
+arch-chroot /mnt systemctl enable smartd
 arch-chroot /mnt systemctl enable reflector.timer
-arch-chroot /mnt systemctl enable fstrim.timer
+if [ "$ssd" = "yes" ]; then
+  arch-chroot /mnt systemctl enable fstrim.timer
+fi
+
+## S.M.A.R.T Notification
+sed -i 's/^DEVICESCAN/DEVICESCAN -m m.westhoff@posteo.de -M exec \/usr\/local\/bin\/smartdnotify/' /etc/smartd.conf
+smarttext="#!/bin/sh\nsudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$user/bus notify-send "
+smarttext+='"S.M.A.R.T Error ($SMARTD_FAILTYPE)" "$SMARTD_MESSAGE" --icon=dialog-warning'
+printf "$smarttext" > /mnt/usr/local/bin/smartdnotify
+chmod +x /mnt/usr/local/bin/smartdnotify
 
 ## Install aurman
 ## remove password of user so sudo -u will not ask for password
