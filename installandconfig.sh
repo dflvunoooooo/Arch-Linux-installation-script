@@ -55,7 +55,7 @@ if [ "$ssd" = "yes" ]; then
 parted --script ${device} -- mklabel gpt \
   mkpart ESP fat32 1Mib 2GiB \
   set 1 boot on \
-  mkpart primary ext4 ${swap_end} $root_size
+  mkpart primary ext4 2GiB $root_size
 
 # Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
 # but not /dev/mmcblk0boot1 while being able to match /dev/sda1 on other devices.
