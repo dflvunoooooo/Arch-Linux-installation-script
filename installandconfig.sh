@@ -40,7 +40,7 @@ devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
 device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
 clear
 
-timedatectl set-ntp true
+#timedatectl set-ntp true
 
 ## Set the size of root to either 100% or 90%
 #if [ "$ssd" = "yes" ]; then
