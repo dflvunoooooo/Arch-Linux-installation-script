@@ -45,13 +45,13 @@ timedatectl set-ntp true
 ## Set the size of root to either 100% or 90%
 if [ "$ssd" = "yes" ]; then
                root_size="90%"
+               printf "root 90"
             else
                root_size="100%"
+               printf "root 100"
             fi
 
 ### Setup the disk and partitions ###
-swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-
 parted --script ${device} -- mklabel gpt \
   mkpart ESP fat32 1Mib 2GiB \
   set 1 boot on \
