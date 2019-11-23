@@ -4,7 +4,7 @@
 #   curl -sL https://git.io/JeRYd | bash
 set -uo pipefail
 trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
-printf "test1"
+
 ### Get infomation from user ###
 encrypt=$(dialog --stdout --inputbox "Do you want a fully encrypted setup (type 'yes' or 'no')?" 0 0) || exit 1
 clear
@@ -35,22 +35,21 @@ clear
 root_password2=$(dialog --stdout --passwordbox "Enter root password again" 0 0) || exit 1
 clear
 [[ "$root_password" == "$root_password2" ]] || ( printf "Passwords did not match"; exit 1; )
-printf "test2"
+
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
 device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
-printf "test3"
 clear
-printf "test4"
-#timedatectl set-ntp true
+
+timedatectl set-ntp true
 
 ## Set the size of root to either 100% or 90%
-#if [ "$ssd" = "yes" ]; then
-#               root_size="90%"
-#               printf "root 90"
-#            else
-#               root_size="100%"
-#               printf "root 100"
-#            fi
+if [ "$ssd" = "yes" ]; then
+               root_size="90%"
+               printf "root 90"
+            else
+               root_size="100%"
+               printf "root 100"
+            fi
 
 ### Setup the disk and partitions ###
 parted --script ${device} -- mklabel gpt \
