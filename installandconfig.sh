@@ -194,11 +194,6 @@ initrd   /initramfs-linux.img
 options  root=UUID=$root_uuid rw
 EOF
 
-## Neofetch configuration
-arch-chroot /mnt sudo -u "$user" mkdir ~/.config/neofetch/config
-curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
-printf "\nneofetch" >>/mnt/home/$user/.bashrc
-
 ## Reflector Configuration 
 cat <<EOF > /mnt/etc/systemd/system/reflector.service
 [Unit]
@@ -228,6 +223,12 @@ EOF
 
 ## Add User
 arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
+
+## Neofetch configuration
+mkdir /mnt/home/$user/.config/neofetch/config
+curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
+arch-chroot /mnt chown -R $user:users /home/$user/.config/neofetch/config
+printf "\nneofetch" >>/mnt/home/$user/.bashrc
 
 ## Systemd activieren
 arch-chroot /mnt systemctl enable avahi-daemon.service
