@@ -87,7 +87,8 @@ if [ "$ssd" = "yes" ]; then
   sed -i 's/relatime/noatime/g' /mnt/etc/fstab
 fi
 ### Swap file creation
-fallocate -l 8G /mnt/swap
+swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
+fallocate -l $(($swap_size / 1024)) /mnt/swap
 chmod 600 /mnt/swap
 mkswap /mnt/swap
 printf "/swap\tnone\tswap\tdefaults\t0\t0" >> /mnt/etc/fstab
