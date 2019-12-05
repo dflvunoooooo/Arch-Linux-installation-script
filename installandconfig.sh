@@ -88,7 +88,7 @@ if [ "$ssd" = "yes" ]; then
 fi
 ### Swap file creation
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-fallocate -l $(($swap_size / 1024)) /mnt/swap
+fallocate -l $(($swap_size / 1024))G /mnt/swap
 chmod 600 /mnt/swap
 mkswap /mnt/swap
 printf "/swap\tnone\tswap\tdefaults\t0\t0" >> /mnt/etc/fstab
