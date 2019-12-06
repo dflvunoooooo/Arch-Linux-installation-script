@@ -96,7 +96,8 @@ printf "vm.swappiness=1" >> /mnt/etc/sysctl.d/99-sysctl.conf
 ### /tmp in RAM
 if [ "$ssd" = "yes" ]; then
   cat <<EOF >> /mnt/etc/fstab
-# Temoräro Dateien in den RAM
+
+# Temoraere Dateien in den RAM
 tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 EOF
 fi
