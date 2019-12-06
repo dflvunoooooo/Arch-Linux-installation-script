@@ -104,7 +104,7 @@ fi
 printf "${hostname}" > /mnt/etc/hostname
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
-printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\n#LC_COLLATE=C\nLC_MONETARY=de_DE.UTF-8\nLC_PAPER=de_DE.UTF-8\nLC_MEASUREMENT=de_DE.UTF-8\nLC_NAME=de_DE.UTF-8\nLC_ADDRESS=de_DE.UTF-8\nLC_TELEPHONE=de_DE.UTF-8\nLC_IDENTIFICATION=declzffwclzffw_DE.UTF-8\nLC_ALL=" > /mnt/etc/locale.conf
+printf "LANG=de_DE.UTF-8\nLANGUAGE=de_DE\nLC_ALL=" > /mnt/etc/locale.conf
 sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
