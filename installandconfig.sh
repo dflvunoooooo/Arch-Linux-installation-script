@@ -171,13 +171,12 @@ EOF
 printf "AllowUsers  $user" >> /mnt/etc/ssh/sshd_config
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /mnt/etc/ssh/sshd_config
 sed -i 's/#Port 22/Port 22222/g' /mnt/etc/ssh/sshd_config
-cat <<\EOF > /mnt/etc/ssh/sshd_config
+cat <<\EOF >> /mnt/etc/ssh/sshd_config
 
 KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
 MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
 HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
 EOF
-sed -i 's|#Banner none|Banner /etc/issue|g' /mnt/etc/ssh/sshd_config
 
 ## Sudo configuration
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
@@ -229,7 +228,7 @@ arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bas
 ## Neofetch configuration
 mkdir -p /mnt/home/$user/.config/neofetch
 curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
-arch-chroot /mnt chown -R $user:users /home/$user/.config/
+arch-chroot /mnt chown -R $user:$user /home/$user/.config/
 printf "\nneofetch" >>/mnt/home/$user/.bashrc
 
 ## Systemd activieren
