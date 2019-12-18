@@ -40,6 +40,25 @@ devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
 device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
 clear
 
+network=$(dialog --stdout --inputbox "Do you want DHCP or static IP (type 'dhcp' or 'static')?" 0 0) || exit 1
+clear
+: ${network:?"You have to answer!"}
+
+if [ "$network" = "static" ]; then
+               ip=$(dialog --stdout --inputbox "Typ static IP:" 0 0) || exit 1
+               clear
+               : ${ip:?"You have to answer!"}
+
+               gate=$(dialog --stdout --inputbox "Type IP of gateway:" 0 0) || exit 1
+               clear
+               : ${gate:?"You have to answer!"}
+               
+               dns=$(dialog --stdout --inputbox "Type IP of DNS:" 0 0) || exit 1
+               clear
+               : ${dns:?"You have to answer!"}
+            fi
+
+
 timedatectl set-ntp true
 
 ## Set the size of root to either 100% or 90%
@@ -122,14 +141,26 @@ ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0
 ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
 EOF
 
-## Network configuration for DHCP via sysemd-network (see arch wiki)
-cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
-[Match]
-Name=en*
-
-[Network]
-DHCP=ipv4
-EOF
+## Network configuration for DHCP or static IP via sysemd-network (see arch wiki: https://wiki.archlinux.org/index.php/Systemd-networkd#Wired_adapter_using_a_static_IP)
+if [ "$network" = "static" ]; then
+               cat <<\EOF > /mnt/etc/systemd/network/20-wired-static.network
+               [Match]
+               Name=en*
+               
+               [Network]
+               Address=$ip/24
+               Gateway=$gate
+               DNS=$dns
+               EOF
+            else
+               cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
+               [Match]
+               Name=en*
+               
+               [Network]
+               DHCP=ipv4
+               EOF
+            fi
 
 ## Quickening IP/TCP
 cat <<\EOF > /mnt/etc/sysctl.d/99-sysctl.conf
