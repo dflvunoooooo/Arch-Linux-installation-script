@@ -229,7 +229,7 @@ arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bas
 ## Neofetch configuration
 mkdir -p /mnt/home/$user/.config/neofetch
 curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
-arch-chroot /mnt chown -R $user:users /home/$user/.config/neofetch
+arch-chroot /mnt chown -R $user:users /home/$user/.config/
 printf "\nneofetch" >>/mnt/home/$user/.bashrc
 
 ## Systemd activieren
