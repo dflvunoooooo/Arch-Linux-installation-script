@@ -286,6 +286,7 @@ arch-chroot /mnt passwd -d "$user"
 ## Now git and install
 arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
 arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
+rm -r /mnt/home/"$user"/aurman
 
 ## Password for root and user
 arch-chroot /mnt <<EOF 
