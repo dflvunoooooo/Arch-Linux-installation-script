@@ -143,7 +143,7 @@ EOF
 
 ## Network configuration for DHCP or static IP via sysemd-network (see arch wiki: https://wiki.archlinux.org/index.php/Systemd-networkd#Wired_adapter_using_a_static_IP)
 if [ "$network" = "static" ]; then
-               cat <<\EOF > /mnt/etc/systemd/network/20-wired-static.network
+               cat <<EOF > /mnt/etc/systemd/network/20-wired-static.network
 [Match]
 Name=en*
 
@@ -153,7 +153,7 @@ Gateway=$gate
 DNS=$dns
 EOF
 else
-               cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
+               cat <<EOF > /mnt/etc/systemd/network/20-wired.network
 [Match]
 Name=en*
 
