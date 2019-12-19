@@ -144,23 +144,23 @@ EOF
 ## Network configuration for DHCP or static IP via sysemd-network (see arch wiki: https://wiki.archlinux.org/index.php/Systemd-networkd#Wired_adapter_using_a_static_IP)
 if [ "$network" = "static" ]; then
                cat <<\EOF > /mnt/etc/systemd/network/20-wired-static.network
-               [Match]
-               Name=en*
-               
-               [Network]
-               Address=$ip/24
-               Gateway=$gate
-               DNS=$dns
-               EOF
-            else
+[Match]
+Name=en*
+
+[Network]
+Address=$ip/24
+Gateway=$gate
+DNS=$dns
+EOF
+else
                cat <<\EOF > /mnt/etc/systemd/network/20-wired.network
-               [Match]
-               Name=en*
-               
-               [Network]
-               DHCP=ipv4
-               EOF
-            fi
+[Match]
+Name=en*
+
+[Network]
+DHCP=ipv4
+EOF
+fi
 
 ## Quickening IP/TCP
 cat <<\EOF > /mnt/etc/sysctl.d/99-sysctl.conf
