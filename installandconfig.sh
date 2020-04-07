@@ -91,12 +91,6 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-### Install and configure the basic system ###
-## Mirrorlist with reflector for european server
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-pacman -Sy --noconfirm reflector
-reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
-
 ## Install Arch Linux and a few packages
 pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano reflector dbus avahi git wget man openssh neofetch htop smartmontools
 
@@ -240,6 +234,7 @@ ExecStart=/usr/bin/reflector  --protocol https --country 'Germany' --country 'Ro
 [Install]
 RequiredBy=multi-user.target
 EOF
+
 cat <<EOF > /mnt/etc/systemd/system/reflector.timer
 [Unit]
 Description=Run reflector weekly
