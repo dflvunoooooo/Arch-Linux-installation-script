@@ -255,7 +255,11 @@ arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bas
 mkdir -p /mnt/home/$user/.config/neofetch
 curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
 arch-chroot /mnt chown -R $user:$user /home/$user/.config/
-printf "\nneofetch" >>/mnt/home/$user/.bashrc
+printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
+
+## Aliase Festlegen
+printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
+
 
 ## Systemd activieren
 arch-chroot /mnt systemctl enable avahi-daemon.service
