@@ -1,0 +1,30 @@
+#!/bin/bash
+set -uo pipefail
+trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+
+block=$(dialog --stdout --inputbox "Wo soll Arch aarch64 installiert werden (ohne Pfad)?" 0 0) || exit 1
+clear
+: ${block:?"You have to answer!"}
+pfad = "/dev/$block"
+pfad1 = "${pfad}p1"
+pfad2 = "${pfad}p2"
+
+sudo parted $pfad --script -- mklabel msdos
+sudo parted $pfad --script -- mkpart primary fat32 1 512
+sudo parted $pfad --script -- mkpart primary ext4 512 100%
+sudo parted $pfad --script -- set 1 boot on
+sudo parted $pfad --script print
+
+sudo mkfs.vfat -F32 $pfad1
+sudo mkfs.ext4 -F $pfad2
+
+sudo mkdir -p /mnt/arch/{boot,root}
+
+sudo mount /dev/sdb1 /mnt/arch/boot
+sudo mount /dev/sdb2 /mnt/arch/root
+
+sudo tar -xf ArchLinuxARM-rpi-3-latest.tar.gz -C /mnt/arch/root
+sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
+sync
+sudo umount /mnt/arch/boot /mnt/arch/root
+echo "\n#################\n### Fertig :) ###\n#################"
