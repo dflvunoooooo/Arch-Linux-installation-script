@@ -29,7 +29,7 @@ pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git ne
 ### Allow group wheel for sudo
 sed -i '%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 gpasswd -a alarm wheel
-printf "alarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ### Install AUR-helper yay and aurman
 su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
