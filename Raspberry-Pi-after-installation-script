@@ -1,0 +1,96 @@
+#!/bin/bash
+### Test if dialog is installed
+if ! [ -x "$(command -v dialog)" ]
+then
+    printf "Installieren Sie dialog (pacman -S dialog)\n"
+    exit
+fi
+
+
+### Ask Questions
+modell=$(dialog --stdout --inputbox "Welches Raspberry Pi Modell (nur Nummer)?" 0 0) || exit 1
+clear
+: ${modell:?"You have to answer!"}
+hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
+clear
+: ${hostname:?"hostname cannot be empty"}
+
+
+### Initialize pacman, update and install packages
+su
+pacman-key --init
+pacman-key --populate archlinuxarm
+exit
+pacman -Syu --noconfirm base-devel htop unzip zip tar man dialog git neofetch
+
+
+### Allow group wheel for sudo
+sed -i '%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
+gpasswd -a alarm wheel
+
+
+### Install AUR-helper yay and aurman
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+git clone https://aur.archlinux.org/aurman.git
+cd aurman
+makepkg -si
+
+### Install AUR packages
+aurman -S --noconfirm --noedit pi-bluetooth python-raspberry-gpio reflector
+
+
+### Localisation
+printf "${hostname}" > /mnt/etc/hostname
+timedatectl set-timezone Europe/Berlin  
+
+
+## SSH configuration
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /mnt/etc/ssh/sshd_config
+sed -i 's/#Port 22/Port 22222/g' /mnt/etc/ssh/sshd_config
+cat <<\EOF >> /mnt/etc/ssh/sshd_config
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
+MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
+EOF
+
+
+### Neofetch configuration
+curl -sL https://git.io/JeV8r > /mnt/home/alarm/.config/neofetch/config
+printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
+
+
+## Reflector Configuration 
+cat <<EOF > /mnt/etc/systemd/system/reflector.service
+[Unit]
+Description=Pacman mirrorlist update
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
+[Install]
+RequiredBy=multi-user.target
+EOF
+
+cat <<EOF > /mnt/etc/systemd/system/reflector.timer
+[Unit]
+Description=Run reflector weekly
+[Timer]
+OnCalendar=Mon *-*-* 7:00:00
+RandomizedDelaySec=15h
+Persistent=true
+[Install]
+WantedBy=timers.target
+EOF
+
+
+### Arch-ARM-RaspberryPi-Wiki
+sudo printf "\ndtparam=audio=on" >> sudo /boot/config.txt
+
+if [ $modell == "3" ]
+then 
+    sudo printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43430-sdio.txt
+    sudo printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
+fi
