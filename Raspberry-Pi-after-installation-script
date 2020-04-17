@@ -32,12 +32,9 @@ gpasswd -a alarm wheel
 printf "alarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ### Install AUR-helper yay and aurman
-git clone https://aur.archlinux.org/yay.git
-cd yay
-su - alarm -c 'makepkg -si'
-git clone https://aur.archlinux.org/aurman.git
-cd aurman
-su - alarm -c 'makepkg -si'
+su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
+su - alarm -c 'git clone https://aur.archlinux.org/aurman.git;cd /home/alarm/aurman;makepkg -si --noconfirm --needed'
+su - alarm -c 'rm -r yay aurman'
 
 ### Install AUR packages
 su - alarm -c 'aurman -S --noconfirm --noedit pi-bluetooth python-raspberry-gpio reflector'
