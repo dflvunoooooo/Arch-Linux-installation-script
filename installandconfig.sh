@@ -58,8 +58,6 @@ if [ "$network" = "static" ]; then
                : ${dns:?"You have to answer!"}
             fi
 
-ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
 
 ## Set the size of root to either 100% or 90%
 if [ "$ssd" = "yes" ]; then
