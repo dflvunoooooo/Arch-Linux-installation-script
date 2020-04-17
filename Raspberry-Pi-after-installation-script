@@ -29,7 +29,7 @@ pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git ne
 ### Allow group wheel for sudo
 sed -i '%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 gpasswd -a alarm wheel
-
+printf "alarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ### Install AUR-helper yay and aurman
 git clone https://aur.archlinux.org/yay.git
@@ -90,6 +90,10 @@ WantedBy=timers.target
 EOF
 
 
+### Systemd activieren
+systemctl enable reflector.timer
+
+
 ### Arch-ARM-RaspberryPi-Wiki
 printf "\ndtparam=audio=on" >> /boot/config.txt
 
@@ -98,3 +102,7 @@ then
     printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43430-sdio.txt
     printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
 fi
+
+
+### Cleanup
+sed '$d' /etc/sudoers
