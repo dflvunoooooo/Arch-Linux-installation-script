@@ -21,10 +21,8 @@ clear
 
 
 ### Initialize pacman, update and install packages
-su
 pacman-key --init
 pacman-key --populate archlinuxarm
-exit
 pacman -Syu --noconfirm base-devel htop unzip zip tar man dialog git neofetch
 
 
@@ -36,24 +34,24 @@ gpasswd -a alarm wheel
 ### Install AUR-helper yay and aurman
 git clone https://aur.archlinux.org/yay.git
 cd yay
-makepkg -si
+su - alarm -c 'makepkg -si'
 git clone https://aur.archlinux.org/aurman.git
 cd aurman
-makepkg -si
+su - alarm -c 'makepkg -si'
 
 ### Install AUR packages
-aurman -S --noconfirm --noedit pi-bluetooth python-raspberry-gpio reflector
+su - alarm -c 'aurman -S --noconfirm --noedit pi-bluetooth python-raspberry-gpio reflector'
 
 
 ### Localisation
-printf "${hostname}" > /mnt/etc/hostname
+printf "${hostname}" > /etc/hostname
 timedatectl set-timezone Europe/Berlin  
 
 
 ## SSH configuration
-sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /mnt/etc/ssh/sshd_config
-sed -i 's/#Port 22/Port 22222/g' /mnt/etc/ssh/sshd_config
-cat <<\EOF >> /mnt/etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /etc/ssh/sshd_config
+sed -i 's/#Port 22/Port 22222/g' /etc/ssh/sshd_config
+cat <<\EOF >> /etc/ssh/sshd_config
 KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
 MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
 HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
@@ -61,12 +59,13 @@ EOF
 
 
 ### Neofetch configuration
-curl -sL https://git.io/JeV8r > /mnt/home/alarm/.config/neofetch/config
+curl -sL https://git.io/JeV8r > /home/alarm/.config/neofetch/config
+chown alarm:alarm /home/alarm/.config/neofetch/config
 printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
 
 ## Reflector Configuration 
-cat <<EOF > /mnt/etc/systemd/system/reflector.service
+cat <<EOF > /etc/systemd/system/reflector.service
 [Unit]
 Description=Pacman mirrorlist update
 Wants=network-online.target
@@ -78,7 +77,7 @@ ExecStart=/usr/bin/reflector  --protocol https --country 'Germany' --country 'Ro
 RequiredBy=multi-user.target
 EOF
 
-cat <<EOF > /mnt/etc/systemd/system/reflector.timer
+cat <<EOF > /etc/systemd/system/reflector.timer
 [Unit]
 Description=Run reflector weekly
 [Timer]
@@ -91,10 +90,10 @@ EOF
 
 
 ### Arch-ARM-RaspberryPi-Wiki
-sudo printf "\ndtparam=audio=on" >> sudo /boot/config.txt
+printf "\ndtparam=audio=on" >> /boot/config.txt
 
 if [ $modell == "3" ]
 then 
-    sudo printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43430-sdio.txt
-    sudo printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
+    printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43430-sdio.txt
+    printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
 fi
