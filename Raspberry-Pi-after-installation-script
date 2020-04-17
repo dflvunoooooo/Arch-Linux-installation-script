@@ -23,7 +23,7 @@ clear
 ### Initialize pacman, update and install packages
 pacman-key --init
 pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm base-devel htop unzip zip tar man dialog git neofetch
+pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch
 
 
 ### Allow group wheel for sudo
@@ -59,8 +59,9 @@ EOF
 
 
 ### Neofetch configuration
+mkdir -p /home/alarm/.config/neofetch
 curl -sL https://git.io/JeV8r > /home/alarm/.config/neofetch/config
-chown alarm:alarm /home/alarm/.config/neofetch/config
+chown alarm:alarm -R /home/alarm/.config/
 printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
 
