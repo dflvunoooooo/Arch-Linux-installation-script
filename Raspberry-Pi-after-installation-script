@@ -55,6 +55,10 @@ HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
 EOF
 
 
+### Aliase Festlegen
+printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
+
+
 ### Neofetch configuration
 mkdir -p /home/alarm/.config/neofetch
 curl -sL https://git.io/JeV8r > /home/alarm/.config/neofetch/config
