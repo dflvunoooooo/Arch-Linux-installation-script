@@ -119,8 +119,6 @@ printf "KEYMAP=de-latin1" > /mnt/etc/vconsole.conf
 printf "LANG=de_DE.UTF-8\nLANG=DE.UTF-8\nLC_CTYPE="de_DE.UTF-8"\nLC_NUMERIC="de_DE.UTF-8"\nLC_TIME="de_DE.UTF-8"\nLC_COLLATE="de_DE.UTF-8"\nLC_MONETARY="de_DE.UTF-8"\nLC_MESSAGES="de_DE.UTF-8"\nLC_PAPER="de_DE.UTF-8"\nLC_NAME="de_DE.UTF-8"\nLC_ADDRESS="de_DE.UTF-8"\nLC_TELEPHONE="de_DE.UTF-8"\nLC_MEASUREMENT="de_DE.UTF-8"\nLC_IDENTIFICATION="de_DE.UTF-8"\nLC_ALL=de_DE.UTF-8" > /mnt/etc/locale.conf
 sed -i '/de_DE.UTF-8 UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
-mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.bak
-cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 ### Run Makepkg in RAM
 sed -i 's+#BUILDDIR=/tmp/makepkg+BUILDDIR=/tmp/makepkg+g' /mnt/etc/makepkg.conf
 ### Change I/O scheduler, depending on whether the disk is rotating or not
