@@ -27,7 +27,7 @@ pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git ne
 
 
 ### Allow group wheel for sudo
-sed -i '%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
+sed -i '/^#.*wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
 gpasswd -a alarm wheel
 printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
