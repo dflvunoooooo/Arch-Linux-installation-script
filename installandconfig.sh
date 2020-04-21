@@ -14,6 +14,10 @@ ssd=$(dialog --stdout --inputbox "Do you install on an SSD (type 'yes' or 'no')?
 clear
 : ${ssd:?"You have to answer!"}
 
+kvm=$(dialog --stdout --inputbox "Do you install inside a Virtual Environmet (KVM,QEMU etc.)? (type 'yes' or 'no') (If so, we will only use 90% of available diskspace.)" 0 0) || exit 1
+clear
+: ${ssd:?"You have to answer!"}
+
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
 : ${hostname:?"hostname cannot be empty"}
@@ -262,18 +266,20 @@ arch-chroot /mnt systemctl enable avahi-daemon.service
 arch-chroot /mnt systemctl enable systemd-networkd.service
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
-arch-chroot /mnt systemctl enable smartd
 arch-chroot /mnt systemctl enable reflector.timer
 if [ "$ssd" = "yes" ]; then
   arch-chroot /mnt systemctl enable fstrim.timer
 fi
 
 ## S.M.A.R.T Notification
-sed -i 's/^DEVICESCAN/DEVICESCAN -m m.westhoff@posteo.de -M exec \/usr\/local\/bin\/smartdnotify/' /etc/smartd.conf
-smarttext="#!/bin/sh\nsudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$user/bus notify-send "
-smarttext+='"S.M.A.R.T Error ($SMARTD_FAILTYPE)" "$SMARTD_MESSAGE" --icon=dialog-warning'
-printf "$smarttext" > /mnt/usr/local/bin/smartdnotify
-chmod +x /mnt/usr/local/bin/smartdnotify
+if [ "$kvm" = "no" ]; then
+  arch-chroot /mnt systemctl enable smartd
+  sed -i 's/^DEVICESCAN/DEVICESCAN -m m.westhoff@posteo.de -M exec \/usr\/local\/bin\/smartdnotify/' /etc/smartd.conf
+  smarttext="#!/bin/sh\nsudo -u $user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$user/bus notify-send "
+  smarttext+='"S.M.A.R.T Error ($SMARTD_FAILTYPE)" "$SMARTD_MESSAGE" --icon=dialog-warning'
+  printf "$smarttext" > /mnt/usr/local/bin/smartdnotify
+  chmod +x /mnt/usr/local/bin/smartdnotify
+fi
 
 ## Install aurman
 ## remove password of user so sudo -u will not ask for password
