@@ -32,11 +32,14 @@ gpasswd -a alarm wheel
 printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ### Rename enboard wifi
+if [ $modell > "2" ]
+then 
 a='SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="'
 b='", NAME="onboard-wlan"'
 wlan_mac=$(cat /sys/class/net/wlp1s0/address)
 out="${a}${wlan_mac}${b}"
 printf "$out" > /etc/udev/rules.d/10-network.rules
+fi
 
 ### Install AUR-helper yay and aurman
 su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
