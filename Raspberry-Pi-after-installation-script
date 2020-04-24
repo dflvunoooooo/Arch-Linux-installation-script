@@ -54,7 +54,7 @@ su - alarm -c 'git clone https://aur.archlinux.org/aurman.git;cd /home/alarm/aur
 rm -r /home/alarm/yay /home/alarm/aurman
 
 ### Install AUR packages
-su - alarm -c 'aurman -S --noconfirm --noedit pi-bluetooth python-raspberry-gpio reflector'
+su - alarm -c 'yay -S --noconfirm pi-bluetooth python-raspberry-gpio reflector'
 
 
 ### Localisation
