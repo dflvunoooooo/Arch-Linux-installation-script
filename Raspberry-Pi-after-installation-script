@@ -24,7 +24,10 @@ clear
 : ${modell:?"You have to answer!"}
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
-: ${hostname:?"hostname cannot be empty"}
+: ${hostname:?"hostname cannot be empty."}
+snapclient=$(dialog --stdout --inputbox "Compile Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
+clear
+: ${snapclient:?"You have to answer with yes or no."}
 
 
 ### Initialize pacman, update and install packages
@@ -110,6 +113,13 @@ EOF
 
 ### Systemd activieren
 systemctl enable reflector.timer
+
+
+### Snapclient
+if [ $snapclient == "yes" ]
+then 
+su - alarm -c 'git clone https://github.com/badaix/snapcast.git && cd snapcast/externals && git submodule update --init --recursive && aurman -S boost avahi opus && cd && cd snapcast/client && make && sudo make install'
+fi
 
 
 ### Arch-ARM-RaspberryPi-Wiki
