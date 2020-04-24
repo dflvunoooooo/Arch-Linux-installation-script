@@ -38,4 +38,4 @@ sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
 sync
 sudo umount /mnt/arch/boot /mnt/arch/root
 sudo rm -r /mnt/arch
-printf "\n#################\n### Fertig :) ###\n#################"
+printf "\n#################\n### Ready :) ###\n#################\n"
