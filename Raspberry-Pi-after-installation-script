@@ -112,6 +112,7 @@ EOF
 
 
 ### Systemd activieren
+systemctl enable systemd-timesyncd.service
 systemctl enable reflector.timer
 
 
