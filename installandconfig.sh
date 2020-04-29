@@ -266,6 +266,7 @@ arch-chroot /mnt systemctl enable avahi-daemon.service
 arch-chroot /mnt systemctl enable systemd-networkd.service
 arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
+arch-chroot /mnt systemctl enable systemd-timesyncd.service
 arch-chroot /mnt systemctl enable reflector.timer
 if [ "$ssd" = "yes" ]; then
   arch-chroot /mnt systemctl enable fstrim.timer
