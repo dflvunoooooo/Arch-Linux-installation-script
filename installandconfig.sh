@@ -94,7 +94,7 @@ mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
 ## Install Arch Linux and a few packages
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion nano dbus avahi git wget man openssh neofetch htop smartmontools
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools
 
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
