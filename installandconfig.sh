@@ -94,7 +94,7 @@ mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
 ## Install Arch Linux and a few packages
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode bash-completion nano dbus avahi git wget man openssh neofetch htop smartmontools
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion nano dbus avahi git wget man openssh neofetch htop smartmontools
 
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -258,7 +258,7 @@ arch-chroot /mnt chown -R $user:$user /home/$user/.config/
 printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
 ## Aliase Festlegen
-printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
+printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
 
 
 ## Systemd activieren
