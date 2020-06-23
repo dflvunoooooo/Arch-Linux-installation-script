@@ -309,4 +309,4 @@ EOF
 
 printf "\n######################################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\nYou should check that the network interface name matches that in /etc/systemd/network/20-wired.network\n\n######################################################################################\n"
 if [ "$server" = "desktop" ]; then
-printf"\nYou can install KDE and Firefox with curl -SL after a reboot.\n\n######################################################################################"
+printf"\nYou can install KDE and Firefox with curl -SL https://git.io/Jfpvf after a reboot.\n\n######################################################################################"
