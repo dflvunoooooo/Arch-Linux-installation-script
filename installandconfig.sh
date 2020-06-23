@@ -10,6 +10,11 @@ encrypt=$(dialog --stdout --inputbox "Do you want a fully encrypted setup (type 
 clear
 : ${encrypt:?"You have to answer!"}
 
+### Get infomation from user ###
+server=$(dialog --stdout --inputbox "Do you set up a server or a despktop (type 'server' or 'desktop')?" 0 0) || exit 1
+clear
+: ${server:?"You have to answer!"}
+
 ssd=$(dialog --stdout --inputbox "Do you install on an SSD (type 'yes' or 'no')? (If so, we will only use 90% of available diskspace.)" 0 0) || exit 1
 clear
 : ${ssd:?"You have to answer!"}
@@ -303,3 +308,5 @@ EOF
 # arch-chroot /mnt history -c
 
 printf "\n######################################################################################\n\nYou can later login via ssh with the user $user and the port 22222\n\nYou should check that the network interface name matches that in /etc/systemd/network/20-wired.network\n\n######################################################################################\n"
+if [ "$server" = "desktop" ]; then
+printf"\nYou can install KDE and Firefox with curl -SL after a reboot.\n\n######################################################################################"
