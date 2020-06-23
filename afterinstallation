@@ -1,0 +1,4 @@
+
+server=$(dialog --stdout --inputbox "Do you set up a server or a despktop (type 'server' or 'desktop')?" 0 0) || exit 1
+clear
+: ${server:?"You have to answer!"}
