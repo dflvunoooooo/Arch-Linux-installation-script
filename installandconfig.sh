@@ -103,10 +103,10 @@ if [ "$ssd" = "yes" ]; then
 fi
 ### Swap file creation
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-fallocate -l $(($swap_size / 1024))G /mnt/swap
-chmod 600 /mnt/swap
-mkswap /mnt/swap
-printf "/swap\tnone\tswap\tdefaults\t0\t0" >> /mnt/etc/fstab
+dd if=/dev/zero of=/swapfile bs=1M count=$swap_size
+chmod 600 /mnt/swapfile
+mkswap /mnt/swapfile
+printf "\n# Swap\n/swapfile\tnone\tswap\tdefaults\t0\t0\n" >> /mnt/etc/fstab
 printf "vm.swappiness=1" >> /mnt/etc/sysctl.d/99-sysctl.conf
 ### /tmp in RAM
 if [ "$ssd" = "yes" ]; then
