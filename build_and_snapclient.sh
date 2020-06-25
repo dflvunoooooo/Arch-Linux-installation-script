@@ -5,4 +5,5 @@ cd snapcast/externals
 git submodule update --init --recursive 
 cd .. 
 cd lient 
-make && sudo make install
+make
+sudo make install
