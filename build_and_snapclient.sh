@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo cp /usr/lib/systemd/system/snapclient.service /usr/lib/systemd/system/snapclient.service.update.bak
 sudo rm -r snapcast
 git clone https://github.com/badaix/snapcast.git 
 cd snapcast/externals 
@@ -7,3 +8,6 @@ cd ..
 cd lient 
 make
 sudo make install
+sudo rm /usr/lib/systemd/system/snapclient.service.pacnew
+sudo mv /usr/lib/systemd/system/snapclient.service /usr/lib/systemd/system/snapclient.service.pacnew
+sudo mv /usr/lib/systemd/system/snapclient.service.update.bak
