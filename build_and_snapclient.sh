@@ -11,4 +11,4 @@ make
 sudo make install
 sudo rm /usr/lib/systemd/system/snapclient.service.pacnew
 sudo mv /usr/lib/systemd/system/snapclient.service /usr/lib/systemd/system/snapclient.service.pacnew
-sudo mv /usr/lib/systemd/system/snapclient.service.update.bak
+sudo mv /usr/lib/systemd/system/snapclient.service.update.bak /usr/lib/systemd/system/snapclient.service
