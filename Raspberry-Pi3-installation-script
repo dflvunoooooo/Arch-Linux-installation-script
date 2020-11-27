@@ -14,6 +14,10 @@ modell=$(dialog --stdout --inputbox "Welches Raspberry Pi Modell (nur Nummer)?" 
 clear
 : ${block:?"You have to answer!"}
 
+version=$(dialog --stdout --inputbox "Soll Raspberry Pi 2 latest (anworte: pi2latest) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
+clear
+: ${block:?"You have to answer!"}
+
 pfad="/dev/$block"
 pfad1="${pfad}p1"
 pfad2="${pfad}p2"
@@ -32,8 +36,27 @@ sudo mkdir -p /mnt/arch/{boot,root}
 sudo mount $pfad1 /mnt/arch/boot
 sudo mount $pfad2 /mnt/arch/root
 
-sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-$modell-latest.tar.gz
-sudo tar -xf ArchLinuxARM-rpi-$modell-latest.tar.gz -C /mnt/arch/root
+if [ "$version" = pi2latest ]; 
+    then
+    FILE=ArchLinuxARM-rpi-2-latest.tar.gz
+    if test -f "$FILE"; then
+        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+    else
+        sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
+        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+    fi
+fi
+if [ "$version" = aarch64 ];
+    then
+    FILE=ArchLinuxARM-rpi-aarch64-latest.tar.gz
+    if test -f "$FILE"; then
+        sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
+    else
+        sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
+        sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
+    fi
+fi
+
 sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
 sync
 sudo umount /mnt/arch/boot /mnt/arch/root
