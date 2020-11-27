@@ -53,8 +53,7 @@ fi
 
 ### Install AUR-helper yay and aurman
 su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
-su - alarm -c 'git clone https://aur.archlinux.org/aurman.git;cd /home/alarm/aurman;makepkg -si --noconfirm --needed --skippgpcheck'
-rm -r /home/alarm/yay /home/alarm/aurman
+rm -r /home/alarm/yay
 
 ### Install AUR packages
 su - alarm -c 'yay -S --noconfirm pi-bluetooth python-raspberry-gpio reflector'
