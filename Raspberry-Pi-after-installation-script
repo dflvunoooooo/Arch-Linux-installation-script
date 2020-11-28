@@ -33,7 +33,7 @@ clear
 ### Initialize pacman, update and install packages
 pacman-key --init
 pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers
+pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez
 
 
 ### Allow group wheel for sudo
@@ -56,7 +56,8 @@ su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;ma
 rm -r /home/alarm/yay
 
 ### Install AUR packages
-su - alarm -c 'yay -S --noconfirm pi-bluetooth python-raspberry-gpio reflector'
+su - alarm -c 'yay -S --noconfirm bluez-utils-compact python-raspberry-gpio '
+
 
 
 ### Localisation
@@ -84,32 +85,6 @@ curl -sL https://git.io/JeV8r > /home/alarm/.config/neofetch/config
 chown alarm:alarm -R /home/alarm/.config/
 printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
-
-## Reflector Configuration 
-cat <<EOF > /etc/systemd/system/reflector.service
-[Unit]
-Description=Pacman mirrorlist update
-Wants=network-online.target
-After=network-online.target
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/reflector  --protocol https --country 'Germany' --country 'Romania' --country 'United Kingdom' --country 'Spain' --country 'Switzerland' --country 'Sweden' --country 'Slovenia' --country 'Portugal' --country 'Poland' --country 'Norway' --country 'Netherlands' --country 'Luxembourg' --country 'Lithuania'  --country 'Latvia' --country 'Italy' --country 'Ireland' --country 'Iceland' --country 'Hungary' --country 'Greece' --country 'France'  --country 'Finland' --country 'Denmark' --country 'Czechia' --country 'Croatia' --country 'Bulgaria' --country 'Belgium' --country 'Austria'  --latest 50 --age 24 --sort rate --save /etc/pacman.d/mirrorlist
-[Install]
-RequiredBy=multi-user.target
-EOF
-
-cat <<EOF > /etc/systemd/system/reflector.timer
-[Unit]
-Description=Run reflector weekly
-[Timer]
-OnCalendar=Mon *-*-* 7:00:00
-RandomizedDelaySec=15h
-Persistent=true
-[Install]
-WantedBy=timers.target
-EOF
-
-
 ### Systemd activieren
 systemctl enable systemd-timesyncd.service
 systemctl enable reflector.timer
@@ -123,7 +98,7 @@ fi
 
 
 ### Arch-ARM-RaspberryPi-Wiki
-printf "\ndtparam=audio=on" >> /boot/config.txt
+printf "\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
 
 if [ $modell == "3" ]
 then 
@@ -134,3 +109,5 @@ fi
 
 ### Cleanup
 sed -n '$d' /etc/sudoers
+
+printf "########################\nAll entrys with ttyAMA0 have to be removed in /boot/cmdline.txt!!!########################"
