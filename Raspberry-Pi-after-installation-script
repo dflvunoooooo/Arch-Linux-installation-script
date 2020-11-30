@@ -98,7 +98,7 @@ fi
 
 
 ### Arch-ARM-RaspberryPi-Wiki
-printf "\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
+printf "\n### Audio\ndtparam=audio=on\n\n### Bluetooth\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
 
 if [ $modell == "3" ]
 then 
