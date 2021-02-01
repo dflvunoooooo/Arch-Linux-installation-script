@@ -108,7 +108,7 @@ if [ "$ssd" = "yes" ]; then
 fi
 ### Swap file creation
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-dd if=/dev/zero of=/swapfile bs=1M count=$swap_size
+dd if=/dev/zero of=/mnt/swapfile bs=1M count=$swap_size
 chmod 600 /mnt/swapfile
 mkswap /mnt/swapfile
 printf "\n# Swap\n/swapfile\tnone\tswap\tdefaults\t0\t0\n" >> /mnt/etc/fstab
@@ -273,6 +273,7 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable systemd-timesyncd.service
 arch-chroot /mnt systemctl enable reflector.timer
+arch-chroot /mnt systemctl enable fstrim.timer
 if [ "$ssd" = "yes" ]; then
   arch-chroot /mnt systemctl enable fstrim.timer
 fi
