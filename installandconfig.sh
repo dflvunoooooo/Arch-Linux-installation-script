@@ -260,7 +260,7 @@ arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bas
 mkdir -p /mnt/home/$user/.config/neofetch
 curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
 arch-chroot /mnt chown -R $user:$user /home/$user/.config/
-printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
+printf "\n\n### Neofetch Aufruf\nneofetch" >> /mnt/etc/bash.bashrc
 
 ## Aliase Festlegen
 printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
@@ -292,9 +292,9 @@ fi
 ## remove password of user so sudo -u will not ask for password
 arch-chroot /mnt passwd -d "$user"
 ## Now git and install
-arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/aurman.git  &> /dev/null
-arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/aurman; makepkg -si --skippgpcheck --noconfirm"
-rm -r /mnt/home/"$user"/aurman
+arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/yay.git  &> /dev/null
+arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/yay; makepkg --noconfirm"
+rm -r /mnt/home/"$user"/yay
 
 ## Password for root and user
 arch-chroot /mnt <<EOF 
