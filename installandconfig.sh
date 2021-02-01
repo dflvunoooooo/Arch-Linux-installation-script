@@ -104,7 +104,7 @@ pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring
 ## Basic system configuration 
 genfstab -U /mnt >> /mnt/etc/fstab
 if [ "$ssd" = "yes" ]; then
-  sed -i 's/relatime/noatime/g' /mnt/etc/fstab
+  sed -i 's/relatime/noatime,discard/g' /mnt/etc/fstab
 fi
 ### Swap file creation
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
