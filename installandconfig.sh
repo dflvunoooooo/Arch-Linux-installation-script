@@ -8,6 +8,7 @@ trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 ### Define colors for Information
 red=$'\e[1;31m'
 green=$'\e[1;32m'
+end=$'\e[0m'
 
 ### Get infomation from user ###
 encrypt=$(dialog --stdout --inputbox "Do you want a fully encrypted setup (type 'yes' or 'no')?" 0 0) || exit 1
