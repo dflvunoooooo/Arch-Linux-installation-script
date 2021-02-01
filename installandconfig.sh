@@ -108,7 +108,7 @@ printf "%s\n" "${green}Setup done, root and boot are mounted under /mnt.${end}"
 
 ## Install Arch Linux and a few packages
 printf "%s" "${green}Installing Arch Linux and a few packages.${end}"
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools go
 printf "%s\n" "${green}Done.${end}"
 
 ## Basic system configuration 
