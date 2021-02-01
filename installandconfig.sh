@@ -5,6 +5,10 @@
 set -uo pipefail
 trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
+### Define colors for Information
+red=$'\e[1;31m'
+green=$'\e[1;32m'
+
 ### Get infomation from user ###
 encrypt=$(dialog --stdout --inputbox "Do you want a fully encrypted setup (type 'yes' or 'no')?" 0 0) || exit 1
 clear
@@ -78,6 +82,7 @@ if [ "$ssd" = "yes" ]; then
             fi
 
 ### Setup the disk and partitions ###
+printf "%s\n" "${green}Setup the partition and create filesystem. ${end}"
 parted --script ${device} -- mklabel gpt \
   mkpart ESP fat32 1Mib 2GiB \
   set 1 boot on \
@@ -98,10 +103,15 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
+printf "%s\n" "${green}Setup done, root and boot are mounted under /mnt.${end}"
+
 ## Install Arch Linux and a few packages
+printf "%s" "${green}Installing Arch Linux and a few packages.${end}"
 pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools
+printf "%s\n" "${green}Done.${end}"
 
 ## Basic system configuration 
+printf "%s" "${green}Generate Fstab, create Swap, move /tmp to RAM und generate localisation.${end}"
 genfstab -U /mnt >> /mnt/etc/fstab
 if [ "$ssd" = "yes" ]; then
   sed -i 's/relatime/noatime,discard/g' /mnt/etc/fstab
@@ -140,7 +150,10 @@ ACTION=="add|change", KERNEL=="sd[a-z]|mmcblk[0-9]*", ATTR{queue/rotational}=="0
 ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
 EOF
 
+printf "%s" "${green}Done. ${end}"
+
 ## Network configuration for DHCP or static IP via sysemd-network (see arch wiki: https://wiki.archlinux.org/index.php/Systemd-networkd#Wired_adapter_using_a_static_IP)
+printf "%s" "${green}Config Network and ssh. ${end}"
 if [ "$network" = "static" ]; then
                cat <<EOF > /mnt/etc/systemd/network/20-wired-static.network
 [Match]
@@ -208,7 +221,10 @@ MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@op
 HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
 EOF
 
+printf "%s" "${green}Done. ${end}"
+
 ## Sudo configuration
+printf "%s" "${green}Config sudo and the bootloader and config reflector. ${end}"
 sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /mnt/etc/sudoers
 
 ## Install and config bootloader
@@ -253,20 +269,18 @@ Persistent=true
 WantedBy=timers.target
 EOF
 
-## Add User
-arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
+printf "%s" "${green}Done. ${end}"
 
-## Neofetch configuration
-mkdir -p /mnt/home/$user/.config/neofetch
-curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
-arch-chroot /mnt chown -R $user:$user /home/$user/.config/
-printf "\n\n### Neofetch Aufruf\nneofetch" >> /mnt/etc/bash.bashrc
+## Add User
+printf "%s" "${green}Adding the user and config environment. ${end}"
+arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
 
 ## Aliase Festlegen
 printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
 
 
 ## Systemd activieren
+printf "%s" "${green}Activate systemd-services. ${end}"
 arch-chroot /mnt systemctl enable avahi-daemon.service
 arch-chroot /mnt systemctl enable systemd-networkd.service
 arch-chroot /mnt systemctl enable systemd-resolved.service
@@ -288,7 +302,8 @@ if [ "$kvm" = "no" ]; then
   chmod +x /mnt/usr/local/bin/smartdnotify
 fi
 
-## Install aurman
+## Install yay
+printf "%s" "${green}Install yay for AUR-Packages. ${end}"
 ## remove password of user so sudo -u will not ask for password
 arch-chroot /mnt passwd -d "$user"
 ## Now git and install
@@ -297,12 +312,20 @@ arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/yay; makepkg --noconfir
 rm -r /mnt/home/"$user"/yay
 
 ## Password for root and user
+printf "%s" "${green}Set passwords. ${end}"
 arch-chroot /mnt <<EOF 
 printf "$root_password\n$root_password" | passwd root
 EOF
 arch-chroot /mnt <<EOF 
 printf "$user_password\n$user_password" | passwd "$user"
 EOF
+
+## Neofetch configuration
+printf "%s" "${green}Config Neofetch. ${end}"
+mkdir -p /mnt/home/$user/.config/neofetch
+curl -sL https://git.io/JeV8r > /mnt/home/$user/.config/neofetch/config
+arch-chroot /mnt chown -R $user:$user /home/$user/.config/
+printf "\n\n### Neofetch Aufruf\nneofetch" >> /mnt/etc/bash.bashrc
 
 ## Delete bash history to erase passwords
 # not working
