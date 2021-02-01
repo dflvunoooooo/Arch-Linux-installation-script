@@ -92,7 +92,7 @@ wipefs "${part_boot}"
 wipefs "${part_root}"
 
 mkfs.vfat -F32 "${part_boot}"
-mkfs.ext4 "${part_root}"
+mkfs.ext4 -F "${part_root}"
 
 mount "${part_root}" /mnt
 mkdir /mnt/boot
