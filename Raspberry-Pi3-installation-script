@@ -6,7 +6,7 @@
 set -uo pipefail
 trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
-block=$(dialog --stdout --inputbox "Wo soll Arch aarch64 installiert werden (ohne Pfad)?" 0 0) || exit 1
+block=$(dialog --stdout --inputbox "Wo soll Arch installiert werden (ohne Pfad)?" 0 0) || exit 1
 clear
 : ${block:?"You have to answer!"}
 
@@ -14,7 +14,7 @@ modell=$(dialog --stdout --inputbox "Welches Raspberry Pi Modell (nur Nummer)?" 
 clear
 : ${block:?"You have to answer!"}
 
-version=$(dialog --stdout --inputbox "Soll Raspberry Pi 2 latest (anworte: pi2latest) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
+version=$(dialog --stdout --inputbox "Soll Raspberry Pi 2 latest (anworte: normal) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
 clear
 : ${block:?"You have to answer!"}
 
@@ -36,16 +36,34 @@ sudo mkdir -p /mnt/arch/{boot,root}
 sudo mount $pfad1 /mnt/arch/boot
 sudo mount $pfad2 /mnt/arch/root
 
-if [ "$version" = pi2latest ]; 
+if [ "$modell" = 2 ] || [ "$modell" = 3 ]; 
     then
-    FILE=ArchLinuxARM-rpi-2-latest.tar.gz
-    if test -f "$FILE"; then
-        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
-    else
-        sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
-        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-2-latest.tar.gz
+        if test -f "$FILE"; then
+            sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+        else
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
+            sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+        fi
     fi
 fi
+
+if [ "$modell" = 4 ]; 
+    then
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-4-latest.tar.gz
+        if test -f "$FILE"; then
+            sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
+        else
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
+            sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
+        fi
+    fi
+fi
+
 if [ "$version" = aarch64 ];
     then
     FILE=ArchLinuxARM-rpi-aarch64-latest.tar.gz
@@ -61,4 +79,4 @@ sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
 sync
 sudo umount /mnt/arch/boot /mnt/arch/root
 sudo rm -r /mnt/arch
-printf "\n#################\n### Ready :) ###\n#################\n"
+printf "\n#################\n### Ready :) ###\n#################\n" 
