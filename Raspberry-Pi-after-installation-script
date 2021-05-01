@@ -76,7 +76,7 @@ EOF
 
 
 ### Aliase Festlegen
-printf "\n\n###Alias\nalias nano='nano -l'\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='aurman -Syu --noconfirm --noedit;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
+printf "\n\n###Alias\nalias nano='nano -l'\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm --noedit;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
 
 
 ### Neofetch configuration
