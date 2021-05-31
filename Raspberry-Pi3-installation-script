@@ -14,7 +14,7 @@ modell=$(dialog --stdout --inputbox "Welches Raspberry Pi Modell (nur Nummer)?" 
 clear
 : ${modell:?"You have to answer!"}
 
-version=$(dialog --stdout --inputbox "Soll Raspberry Pi 2 latest (anworte: normal) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
+version=$(dialog --stdout --inputbox "Soll Raspberry Pi latest (anworte: normal) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
 clear
 : ${version:?"You have to answer!"}
 
