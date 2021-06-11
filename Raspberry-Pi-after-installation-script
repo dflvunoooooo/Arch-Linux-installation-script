@@ -91,7 +91,7 @@ then
 fi
 if [ $snapclientinst == "yes" ]
 then 
-    su - alarm -c 'yay -S --noconfirm snapclient'
+    su - alarm -c 'yay -S --noconfirm snapcast'
 fi
 
 ### Arch-ARM-RaspberryPi-Wiki
