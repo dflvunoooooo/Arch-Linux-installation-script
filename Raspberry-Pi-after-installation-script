@@ -89,7 +89,18 @@ fi
 
 
 ### Arch-ARM-RaspberryPi-Wiki
-printf "\n### Audio\ndtparam=audio=on\n\n### Bluetooth\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
+if [ $modell != "4" ]
+then 
+## For Audio
+    printf "\n### Audio\ndtparam=audio=on\n\n### Bluetooth\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
+fi
+
+if [ $modell == "4" ]
+then 
+## For Audio from kodi
+    printf "\n\n### For Audio\ndtoverlay=rpivid-v4l2" >> /boot/config.txt
+fi
+
 
 if [ $modell == "3" ]
 then 
@@ -97,10 +108,6 @@ then
     printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
 fi
 
-if [ $modell == "4" ]
-then 
-    printf "\n\n### For Audio\ndtoverlay=rpivid-v4l2" >> /boot/config.txt
-fi
 
 ### Cleanup
 sed -n '$d' /etc/sudoers
