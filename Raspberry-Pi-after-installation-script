@@ -28,7 +28,12 @@ clear
 snapclient=$(dialog --stdout --inputbox "Compile Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
 clear
 : ${snapclient:?"You have to answer with yes or no."}
-
+if [ $snapclient == "no" ]
+then 
+    snapclientinst=$(dialog --stdout --inputbox "Install Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
+    clear
+    : ${snapclient:?"You have to answer with yes or no."}
+fi
 
 ### Initialize pacman, update and install packages
 pacman-key --init
@@ -48,8 +53,6 @@ rm -r /home/alarm/yay
 
 ### Install AUR packages
 su - alarm -c 'yay -S --noconfirm bluez-utils-compact python-raspberry-gpio '
-
-
 
 ### Localisation
 printf "${hostname}" > /etc/hostname
@@ -84,9 +87,12 @@ systemctl enable reflector.timer
 ### Snapclient
 if [ $snapclient == "yes" ]
 then 
-su - alarm -c 'git clone https://github.com/badaix/snapcast.git && cd snapcast/externals && git submodule update --init --recursive && aurman -S boost avahi opus && cd && cd snapcast/client && make && sudo make install'
+    su - alarm -c 'git clone https://github.com/badaix/snapcast.git && cd snapcast/externals && git submodule update --init --recursive && aurman -S boost avahi opus && cd && cd snapcast/client && make && sudo make install'
 fi
-
+if [ $snapclientinst == "yes" ]
+then 
+    su - alarm -c 'yay -S --noconfirm snapclient'
+fi
 
 ### Arch-ARM-RaspberryPi-Wiki
 if [ $modell != "4" ]
