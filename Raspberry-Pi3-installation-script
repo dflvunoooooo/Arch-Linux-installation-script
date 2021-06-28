@@ -46,12 +46,10 @@ if [ "$modell" = 2 ] || [ "$modell" = 3 ];
     if [ "$version" = normal ]; 
         then
         FILE=ArchLinuxARM-rpi-2-latest.tar.gz
-        if test -f "$FILE"; then
-            sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
-        else
+        if ! test -f "$FILE"; then
             sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
-            sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
         fi
+        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
     fi
 fi
 
@@ -60,25 +58,21 @@ if [ "$modell" = 4 ];
     if [ "$version" = normal ]; 
         then
         FILE=ArchLinuxARM-rpi-4-latest.tar.gz
-        if test -f "$FILE"; then
-            sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
-        else
+        if ! test -f "$FILE"; then
             sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
-            sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
         fi
+        sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
     fi
 fi
 
 if [ "$version" = aarch64 ];
     then
     FILE=ArchLinuxARM-rpi-aarch64-latest.tar.gz
-    if test -f "$FILE"; then
-        sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
-    else
+    if ! test -f "$FILE"; then
         sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
-        sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
-        sudo sed -i 's/mmcblk0/mmcblk1/g' /mnt/arch/root/etc/fstab
     fi
+    sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
+    sudo sed -i 's/mmcblk0/mmcblk1/g' /mnt/arch/root/etc/fstab
 fi
 
 sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
