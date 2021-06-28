@@ -77,6 +77,7 @@ if [ "$version" = aarch64 ];
     else
         sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
         sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
+        sudo sed -i 's/mmcblk0/mmcblk1/g' /mnt/arch/root/etc/fstab
     fi
 fi
 
