@@ -81,8 +81,6 @@ printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
 ### Systemd activieren
 systemctl enable systemd-timesyncd.service
-systemctl enable reflector.timer
-
 
 ### Snapclient
 if [ $snapclient == "yes" ]
