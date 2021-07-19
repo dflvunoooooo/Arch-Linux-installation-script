@@ -34,6 +34,9 @@ then
     clear
     : ${snapclient:?"You have to answer with yes or no."}
 fi
+roomass=$(dialog --stdout --inputbox "Soll Room-Assistant installiert werden?" 0 0) || exit 1
+clear
+: ${modell:?"You have to answer!"}
 
 ### Initialize pacman, update and install packages
 pacman-key --init
@@ -47,12 +50,12 @@ gpasswd -a alarm wheel
 printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 
-### Install AUR-helper yay and aurman
+### Install AUR-helper yay 
 su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
 rm -r /home/alarm/yay
 
 ### Install AUR packages
-su - alarm -c 'yay -S --noconfirm bluez-utils-compact python-raspberry-gpio '
+su - alarm -c 'yay -S --noconfirm python-raspberry-gpio '
 
 ### Localisation
 printf "${hostname}" > /etc/hostname
@@ -90,6 +93,13 @@ fi
 if [ $snapclientinst == "yes" ]
 then 
     su - alarm -c 'yay -S --noconfirm snapcast'
+fi
+
+### Room-Assistant
+if [ $rommass == "yes" ]
+then 
+    su - alarm -c 'yay -S --noconfirm bluez bluez-utils-compact nodejs-lts-fermium'
+    su - alarm -c 'sudo npm i --global --unsafe-perm room-assistant'
 fi
 
 ### Arch-ARM-RaspberryPi-Wiki
