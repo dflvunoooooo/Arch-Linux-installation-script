@@ -102,6 +102,7 @@ then
     su - alarm -c 'sudo npm i --global --unsafe-perm room-assistant'
     printf "[Unit]\nDescription=room-assistant service\n\n[Service]\nType=notify\nExecStart=/usr/bin/room-assistant\nWorkingDirectory=/home/alarm/room-assistant\nTimeoutStartSec=120\nTimeoutStopSec=30\nRestart=always\nRestartSec=10\nWatchdogSec=60\nUser=alarm\n\n[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/room-assistant.service
     su - alarm -c 'mkdir -p room-assistant/config'
+    usermod -aG lp alarm
 fi
 
 ### Arch-ARM-RaspberryPi-Wiki
