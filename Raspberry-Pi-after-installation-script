@@ -1,132 +1,94 @@
 #!/bin/bash
 # This script can be run by executing the following:
-#   curl -sL https://git.io/JfJBl | bash
-# and should be run as root
+#   curl -sL https://git.io/JfLYQ | bash
+# and should be run as user
 
+set -uo pipefail
+trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
-### Test if dialog is installed
-if ! [ -x "$(command -v dialog)" ]
-then
-    printf "Installieren Sie dialog (pacman -S dialog)\n"
-    exit
-fi
+block=$(dialog --stdout --inputbox "Wo soll Arch installiert werden (ohne Pfad)?" 0 0) || exit 1
+clear
+: ${block:?"You have to answer!"}
 
-### Check if user is root, exit if not
-if [[ $EUID -ne 0 ]]; then
-   printf "\n######################################\n## This skript must be run as root ##\n######################################\n" 
-   exit 1
-fi
-
-
-### Ask Questions
 modell=$(dialog --stdout --inputbox "Welches Raspberry Pi Modell (nur Nummer)?" 0 0) || exit 1
 clear
 : ${modell:?"You have to answer!"}
-hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
+
+version=$(dialog --stdout --inputbox "Soll Raspberry Pi latest (anworte: normal) oder Aarch64 (antworte: aarch64) installiert werden)?" 0 0) || exit 1
 clear
-: ${hostname:?"hostname cannot be empty."}
-snapclient=$(dialog --stdout --inputbox "Compile Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
-clear
-: ${snapclient:?"You have to answer with yes or no."}
-if [ $snapclient == "no" ]
-then 
-    snapclientinst=$(dialog --stdout --inputbox "Install Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
-    clear
-    : ${snapclient:?"You have to answer with yes or no."}
-fi
-roomass=$(dialog --stdout --inputbox "Soll Room-Assistant installiert werden?" 0 0) || exit 1
-clear
-: ${modell:?"You have to answer!"}
+: ${version:?"You have to answer!"}
 
-### Initialize pacman, update and install packages
-pacman-key --init
-pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez
-
-
-### Allow group wheel for sudo
-sed -i '/^#.*wheel ALL=(ALL) ALL/s/^# //' /etc/sudoers
-gpasswd -a alarm wheel
-printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-
-### Install AUR-helper yay 
-su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
-rm -r /home/alarm/yay
-
-### Install AUR packages
-su - alarm -c 'yay -S --noconfirm python-raspberry-gpio '
-
-### Localisation
-printf "${hostname}" > /etc/hostname
-timedatectl set-timezone Europe/Berlin  
-
-
-## SSH configuration
-sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /etc/ssh/sshd_config
-sed -i 's/#Port 22/Port 22222/g' /etc/ssh/sshd_config
-cat <<\EOF >> /etc/ssh/sshd_config
-KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
-MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
-HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
-EOF
-
-
-### Aliase Festlegen
-printf "\n\n###Alias\nalias nano='nano -l'\nalias ls='ls -Alh --group-directories-first --color=auto'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm;  echo;  echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
-
-
-### Neofetch configuration
-mkdir -p /home/alarm/.config/neofetch
-curl -sL https://git.io/JeV8r > /home/alarm/.config/neofetch/config
-chown alarm:alarm -R /home/alarm/.config/
-printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
-
-### Systemd activieren
-systemctl enable systemd-timesyncd.service
-
-### Snapclient
-if [ $snapclient == "yes" ]
-then 
-    su - alarm -c 'git clone https://github.com/badaix/snapcast.git && cd snapcast/externals && git submodule update --init --recursive && aurman -S boost avahi opus && cd && cd snapcast/client && make && sudo make install'
-fi
-if [ $snapclientinst == "yes" ]
-then 
-    su - alarm -c 'yay -S --noconfirm snapcast'
+pfad="/dev/$block"
+if [[ "$block" == sd* ]]; then
+    pfad1="${pfad}1"
+    pfad2="${pfad}2"
+else
+    pfad1="${pfad}p1"
+    pfad2="${pfad}p2"
 fi
 
-### Room-Assistant
-if [ $rommass == "yes" ]
-then 
-    su - alarm -c 'yay -S --noconfirm bluez bluez-utils-compact nodejs-lts-fermium npm'
-    su - alarm -c 'sudo npm i --global --unsafe-perm room-assistant'
-    printf "[Unit]\nDescription=room-assistant service\n\n[Service]\nType=notify\nExecStart=/usr/bin/room-assistant\nWorkingDirectory=/home/alarm/room-assistant\nTimeoutStartSec=120\nTimeoutStopSec=30\nRestart=always\nRestartSec=10\nWatchdogSec=60\nUser=alarm\n\n[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/room-assistant.service
-    su - alarm -c 'mkdir -p room-assistant/config'
-    usermod -aG lp alarm
+sudo parted $pfad --script -- mklabel msdos
+sudo parted $pfad --script -- mkpart primary fat32 1 512
+sudo parted $pfad --script -- mkpart primary ext4 512 100%
+sudo parted $pfad --script -- set 1 boot on
+sudo parted $pfad --script print
+
+sudo mkfs.vfat -F32 $pfad1
+sudo mkfs.ext4 -F $pfad2
+
+sudo mkdir -p /mnt/arch/{boot,root}
+
+sudo mount $pfad1 /mnt/arch/boot
+sudo mount $pfad2 /mnt/arch/root
+
+if [ "$modell" = 1 ] || [ "$modell" = zero ]; 
+    then
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-latest.tar.gz
+        if ! test -f "$FILE"; then
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-latest.tar.gz
+        fi
+        sudo tar -xf ArchLinuxARM-rpi-latest.tar.gz -C /mnt/arch/root
+    fi
 fi
 
-### Arch-ARM-RaspberryPi-Wiki
-if [ $modell != "4" ]
-then 
-## For Audio
-    printf "\n### Audio\ndtparam=audio=on\n\n### Bluetooth\ndtparam=krnbt=on\nenable_uart=0" >> /boot/config.txt
+if [ "$modell" = 2 ] || [ "$modell" = 3 ]; 
+    then
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-2-latest.tar.gz
+        if ! test -f "$FILE"; then
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
+        fi
+        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+    fi
 fi
 
-if [ $modell == "4" ]
-then 
-## For Audio from kodi
-    printf "\n\n### For Audio\ndtoverlay=rpivid-v4l2" >> /boot/config.txt
+if [ "$modell" = 4 ]; 
+    then
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-4-latest.tar.gz
+        if ! test -f "$FILE"; then
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
+        fi
+        sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
+    fi
 fi
 
-
-if [ $modell == "3" ]
-then 
-    printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43430-sdio.txt
-    printf "\nbtc_mode=1\nbtc_params8=0x4e20\nbtc_params1=0x7530" >> /usr/lib/firmware/updates/brcm/brcmfmac43455-sdio.txt 
+if [ "$version" = aarch64 ];
+    then
+    FILE=ArchLinuxARM-rpi-aarch64-latest.tar.gz
+    if ! test -f "$FILE"; then
+        sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
+    fi
+    sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
+    sudo sed -i 's/mmcblk0/mmcblk1/g' /mnt/arch/root/etc/fstab
 fi
 
-
-### Cleanup
-sed -n '$d' /etc/sudoers
-
-printf "########################\nAll entrys with ttyAMA0 have to be removed in /boot/cmdline.txt!!!########################"
+sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
+sync
+sudo umount /mnt/arch/boot /mnt/arch/root
+sudo rm -r /mnt/arch
+printf "\n#################\n### Ready :) ###\n#################\n" 
