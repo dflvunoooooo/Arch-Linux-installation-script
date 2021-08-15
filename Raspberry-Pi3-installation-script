@@ -18,6 +18,22 @@ version=$(dialog --stdout --inputbox "Soll Raspberry Pi latest (anworte: normal)
 clear
 : ${version:?"You have to answer!"}
 
+if [ $modell == zero ]
+then 
+    wlan=$(dialog --stdout --inputbox "Soll WLAN eingerichtet werden?" 0 0) || exit 1
+    clear
+    : ${wlan:?"You have to answer with yes or no."}
+fi
+if [ $wlan == zero ]
+then 
+    ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
+    clear
+    : ${ssid:?"You have to answer with yes or no."}
+    passwort=$(dialog --stdout --inputbox "Wie lautet das Passwort?" 0 0) || exit 1
+    clear
+    : ${passwort:?"You have to answer with yes or no."}
+fi
+
 pfad="/dev/$block"
 if [[ "$block" == sd* ]]; then
     pfad1="${pfad}1"
@@ -26,6 +42,9 @@ else
     pfad1="${pfad}p1"
     pfad2="${pfad}p2"
 fi
+
+mountroot="/mnt/arch/root"
+mountboot="/mnt/arch/boot"
 
 sudo parted $pfad --script -- mklabel msdos
 sudo parted $pfad --script -- mkpart primary fat32 1 512
@@ -38,8 +57,8 @@ sudo mkfs.ext4 -F $pfad2
 
 sudo mkdir -p /mnt/arch/{boot,root}
 
-sudo mount $pfad1 /mnt/arch/boot
-sudo mount $pfad2 /mnt/arch/root
+sudo mount $pfad1 $mountboot
+sudo mount $pfad2 $mountroot
 
 if [ "$modell" = 2 ] || [ "$modell" = 3 ]; 
     then
@@ -49,7 +68,7 @@ if [ "$modell" = 2 ] || [ "$modell" = 3 ];
         if ! test -f "$FILE"; then
             sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz
         fi
-        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C /mnt/arch/root
+        sudo tar -xf ArchLinuxARM-rpi-2-latest.tar.gz -C $mountroot
     fi
 fi
 
@@ -61,7 +80,7 @@ if [ "$modell" = 4 ];
         if ! test -f "$FILE"; then
             sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
         fi
-        sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C /mnt/arch/root
+        sudo tar -xf ArchLinuxARM-rpi-4-latest.tar.gz -C $mountroot
     fi
 fi
 
@@ -71,8 +90,17 @@ if [ "$version" = aarch64 ];
     if ! test -f "$FILE"; then
         sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
     fi
-    sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C /mnt/arch/root
-    sudo sed -i 's/mmcblk0/mmcblk1/g' /mnt/arch/root/etc/fstab
+    sudo tar -xf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $mountroot
+    sudo sed -i 's/mmcblk0/mmcblk1/g' $mountroot/etc/fstab
+fi
+
+#### WLAN einrichten
+if [ "$wlan" = yes ];
+then
+    printf "[Match]\nName=wlan0\n\n[Network]\nDHCP=yes" > $mountroot/etc/systemd/network/wlan0.network
+    printf "country=AT\nctrl_interface=DIR=/run/wpa_supplicant\nctrl_interface_group=wheel\nupdate_config=1" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+    wpa_passphrase "${ssid}" "${passwort}" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+    ln -s /usr/lib/systemd/system/wpa_supplicant@.service $mountroot/etc/systemd/system/multi-user.target.wants/wpa_supplicant@wlan0.service
 fi
 
 sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
