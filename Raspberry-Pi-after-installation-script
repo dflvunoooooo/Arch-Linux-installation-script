@@ -36,7 +36,8 @@ then
 fi
 roomass=$(dialog --stdout --inputbox "Soll Room-Assistant installiert werden?" 0 0) || exit 1
 clear
-: ${modell:?"You have to answer!"}
+: ${roomass:?"You have to answer!"}
+
 
 ### Initialize pacman, update and install packages
 pacman-key --init
@@ -96,7 +97,7 @@ then
 fi
 
 ### Room-Assistant
-if [ $rommass == "yes" ]
+if [ $roomass == "yes" ]
 then 
     su - alarm -c 'yay -S --noconfirm bluez bluez-utils-compact nodejs-lts-fermium npm'
     su - alarm -c 'sudo npm i --global --unsafe-perm room-assistant'
