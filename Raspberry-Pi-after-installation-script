@@ -25,6 +25,9 @@ clear
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
 : ${hostname:?"hostname cannot be empty."}
+avahi=$(dialog --stdout --inputbox "Soll Avahi aktiviert und systemd-resolved deactiviert werden?" 0 0) || exit 1
+clear
+: ${avahi:?"You have to answer!"}
 snapclient=$(dialog --stdout --inputbox "Compile Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
 clear
 : ${snapclient:?"You have to answer with yes or no."}
@@ -85,6 +88,14 @@ printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 
 ### Systemd activieren
 systemctl enable systemd-timesyncd.service
+
+### Avahi
+if [ $avahi == "yes" ]
+then 
+    sed -i 's/hosts: files mymachines myhostname resolve [!UNAVAIL=return] dns/hosts: files mymachines myhostname mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns/g' /etc/nsswitch.conf
+    systemctl enable avahi-daemon
+    systemctl disable systemd-resolved
+fi
 
 ### Snapclient
 if [ $snapclient == "yes" ]
