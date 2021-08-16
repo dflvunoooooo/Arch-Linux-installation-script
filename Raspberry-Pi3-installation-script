@@ -18,13 +18,13 @@ version=$(dialog --stdout --inputbox "Soll Raspberry Pi latest (anworte: normal)
 clear
 : ${version:?"You have to answer!"}
 
-if [ $modell == "zero" ];
+if [ $modell = "zero" ];
 then 
     wlan=$(dialog --stdout --inputbox "Soll WLAN eingerichtet werden?" 0 0) || exit 1
     clear
     : ${wlan:?"You have to answer with yes or no."}
 fi
-if [ $wlan == "yes" ] | [ $wlan == "ja" ];
+if [ $wlan = "yes" ] | [ $wlan = "ja" ];
 then 
     ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
     clear
@@ -35,7 +35,7 @@ then
 fi
 
 pfad="/dev/$block"
-if [[ "$block" == sd* ]]; then
+if [[ "$block" = sd* ]]; then
     pfad1="${pfad}1"
     pfad2="${pfad}2"
 else
