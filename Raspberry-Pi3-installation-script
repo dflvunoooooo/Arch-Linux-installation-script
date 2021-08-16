@@ -61,6 +61,18 @@ sudo mkdir -p /mnt/arch/{boot,root}
 sudo mount $pfad1 $mountboot
 sudo mount $pfad2 $mountroot
 
+if [ "$modell" = 1 ] || [ $modell = "zero" ];
+    then
+    if [ "$version" = normal ]; 
+        then
+        FILE=ArchLinuxARM-rpi-latest.tar.gz
+        if ! test -f "$FILE"; then
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-latest.tar.gz
+        fi
+        sudo tar -xf ArchLinuxARM-rpi-latest.tar.gz -C $mountroot
+    fi
+fi
+
 if [ "$modell" = 2 ] || [ "$modell" = 3 ]; 
     then
     if [ "$version" = normal ]; 
