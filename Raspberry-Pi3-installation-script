@@ -24,6 +24,7 @@ then
     clear
     : ${wlan:?"You have to answer with yes or no."}
 fi
+echo $wlan
 if [ $wlan = "yes" ] || [ $wlan = "ja" ];
 then 
     ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
