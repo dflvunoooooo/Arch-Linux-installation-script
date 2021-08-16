@@ -90,7 +90,7 @@ printf "\n\n### Neofetch Aufruf\nneofetch" >> /etc/bash.bashrc
 systemctl enable systemd-timesyncd.service
 
 ### Avahi
-if [ $avahi == "yes" ]
+if [ $avahi == "yes" ] || [ $avahi == "ja" ];
 then 
     sed -i 's/hosts: files mymachines myhostname resolve [!UNAVAIL=return] dns/hosts: files mymachines myhostname mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns/g' /etc/nsswitch.conf
     systemctl enable avahi-daemon
@@ -98,17 +98,17 @@ then
 fi
 
 ### Snapclient
-if [ $snapclient == "yes" ]
+if [ $snapclient == "yes" ] || [ $snapclient == "ja" ];
 then 
     su - alarm -c 'git clone https://github.com/badaix/snapcast.git && cd snapcast/externals && git submodule update --init --recursive && aurman -S boost avahi opus && cd && cd snapcast/client && make && sudo make install'
 fi
-if [ $snapclientinst == "yes" ]
+if [ $snapclientinst == "yes" ] || [ $snapclientinst == "ja" ];
 then 
     su - alarm -c 'yay -S --noconfirm snapcast'
 fi
 
 ### Room-Assistant
-if [ $roomass == "yes" ]
+if [ $roomass == "yes" ] || [ $roomass == "ja" ];
 then 
     su - alarm -c 'yay -S --noconfirm bluez bluez-utils-compact nodejs-lts-fermium npm'
     su - alarm -c 'sudo npm i --global --unsafe-perm room-assistant'
