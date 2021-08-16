@@ -18,13 +18,13 @@ version=$(dialog --stdout --inputbox "Soll Raspberry Pi latest (anworte: normal)
 clear
 : ${version:?"You have to answer!"}
 
-if [ $modell == zero ]
+if [ $modell == "zero" ];
 then 
     wlan=$(dialog --stdout --inputbox "Soll WLAN eingerichtet werden?" 0 0) || exit 1
     clear
     : ${wlan:?"You have to answer with yes or no."}
 fi
-if [ $wlan == zero ]
+if [ $wlan == "yes" ] | [ $wlan == "ja" ];
 then 
     ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
     clear
@@ -84,7 +84,7 @@ if [ "$modell" = 4 ];
     fi
 fi
 
-if [ "$version" = aarch64 ];
+if [ "$version" = "aarch64" ];
     then
     FILE=ArchLinuxARM-rpi-aarch64-latest.tar.gz
     if ! test -f "$FILE"; then
@@ -95,7 +95,7 @@ if [ "$version" = aarch64 ];
 fi
 
 #### WLAN einrichten
-if [ "$wlan" = yes ];
+if [ "$wlan" = "yes" ] | [ "$wlan" = "ja" ];
 then
     printf "[Match]\nName=wlan0\n\n[Network]\nDHCP=yes" > $mountroot/etc/systemd/network/wlan0.network
     printf "country=AT\nctrl_interface=DIR=/run/wpa_supplicant\nctrl_interface_group=wheel\nupdate_config=1" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
