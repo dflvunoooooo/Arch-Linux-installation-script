@@ -24,7 +24,7 @@ then
     clear
     : ${wlan:?"You have to answer with yes or no."}
 fi
-if [ $wlan = "yes" ] | [ $wlan = "ja" ];
+if [ $wlan = "yes" ] || [ $wlan = "ja" ];
 then 
     ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
     clear
@@ -95,7 +95,7 @@ if [ "$version" = "aarch64" ];
 fi
 
 #### WLAN einrichten
-if [ "$wlan" = "yes" ] | [ "$wlan" = "ja" ];
+if [ "$wlan" = "yes" ] || [ "$wlan" = "ja" ];
 then
     printf "[Match]\nName=wlan0\n\n[Network]\nDHCP=yes" > $mountroot/etc/systemd/network/wlan0.network
     printf "country=AT\nctrl_interface=DIR=/run/wpa_supplicant\nctrl_interface_group=wheel\nupdate_config=1" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
