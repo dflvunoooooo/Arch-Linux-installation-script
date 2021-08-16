@@ -58,10 +58,29 @@ sudo mkfs.ext4 -F $pfad2
 
 sudo mkdir -p /mnt/arch/{boot,root}
 
+if mount | grep $mountboot > /dev/null; then
+    mountedboot=$(dialog --stdout --inputbox "${mountboot} ist eingehängt, soll es ausgehängt werden?" 0 0) || exit 1
+    clear
+    : ${mountedboot:?"You have to answer!"}
+    if [ $mountedboot =  "yes" ] || [ $mountedboot =  "ja" ];
+    then 
+        umount $mountboot
+    fi
+fi
+if mount | grep $mountroot > /dev/null; then
+    mountedboot=$(dialog --stdout --inputbox "${mountroot} ist eingehängt, soll es ausgehängt werden?" 0 0) || exit 1
+    clear
+    : ${mountedroot:?"You have to answer!"}
+    if [ $mountedroot =  "yes" ] || [ $mountedroot =  "ja" ];
+    then 
+        umount $mountroot
+    fi
+fi
+
 sudo mount $pfad1 $mountboot
 sudo mount $pfad2 $mountroot
 
-if [ "$modell" = 1 ] || [ $modell = "zero" ];
+if [ $modell = "zero" ];
     then
     if [ "$version" = normal ]; 
         then
