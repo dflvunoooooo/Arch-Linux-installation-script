@@ -127,6 +127,7 @@ then
     su - alarm -c 'mkdir -p room-assistant/config'
     usermod -aG lp alarm
     systemctl enable bluetooth.service
+    sed -i 's/#AutoEnable=true/AutoEnable=true/g' /etc/bluetooth/main.conf
 fi
     
 if [ $modell == "3" ] || [ $modell == "2" ] || [ $modell == "1" ] || [ $modell == "zero" ];
