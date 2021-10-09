@@ -28,6 +28,12 @@ clear
 avahi=$(dialog --stdout --inputbox "Soll Avahi aktiviert und systemd-resolved deactiviert werden?" 0 0) || exit 1
 clear
 : ${avahi:?"You have to answer!"}
+if [ $avahi == "yes" ] || [ $avahi == "ja" ];
+then 
+    nameserver=$(dialog --stdout --inputbox "Wie lautet die IP des DHCP (für /etc/resolv.conf)?" 0 0) || exit 1
+    clear
+    : ${nameserver:?"You have to answer!"}
+fi
 snapclient=$(dialog --stdout --inputbox "Compile Snapclient (answer 'yes' or 'no')?" 0 0) || exit 1
 clear
 : ${snapclient:?"You have to answer with yes or no."}
@@ -70,9 +76,9 @@ timedatectl set-timezone Europe/Berlin
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/g' /etc/ssh/sshd_config
 sed -i 's/#Port 22/Port 22222/g' /etc/ssh/sshd_config
 cat <<\EOF >> /etc/ssh/sshd_config
-KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
-MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
-HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group18-sha512
+    MACs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+    HostKeyAlgorithms ssh-rsa,rsa-sha2-256,rsa-sha2-512
 EOF
 
 
@@ -95,6 +101,11 @@ then
     sed -i 's/hosts: files mymachines myhostname resolve [!UNAVAIL=return] dns/hosts: files mymachines myhostname mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns/g' /etc/nsswitch.conf
     systemctl enable avahi-daemon
     systemctl disable systemd-resolved
+    rm /etc/resolv.conf
+    cat <<\EOF >> /etc/resolv.conf
+        search home
+        nameserver $nameserver
+    EOF
 fi
 
 ### Snapclient
@@ -135,4 +146,6 @@ fi
 ### Cleanup
 sed -n '$d' /etc/sudoers
 
+printf "########################\n                 Fertig                                           ########################"
 printf "########################\nAll entrys with ttyAMA0 have to be removed in /boot/cmdline.txt!!!########################"
+printf "########################\nAdd ipv6 adrress of nameserver in /etc/resolv.conf.               ########################"
