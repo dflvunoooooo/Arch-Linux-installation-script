@@ -65,7 +65,7 @@ su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;ma
 rm -r /home/alarm/yay
 
 ### Install AUR packages
-su - alarm -c 'yay -S --noconfirm python-raspberry-gpio '
+su - alarm -c 'yay -S --noconfirm python-raspberry-gpio pi-bluetooth'
 
 ### Localisation
 printf "${hostname}" > /etc/hostname
