@@ -7,7 +7,7 @@ trap 's=$?; printf "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 # Install KDE, Firefox and Bluetooth
 sudo pacman -S archlinux-keyring
-aurman -S yay cifs-utils gparted plasma-nm sddm sddm-kcm firefox firefox-i18n-de plasma kde-applications gst-libav gst-plugins-good gst-plugins-ugly gst-plugins-bad pulseaudio-alsa pulseaudio-bluetooth bluez-utils bluez texlive-most biber texstudio sane libreoffice-fresh hunspell hunspell-de sane skanlite vlc flatpak 
+yay -S cifs-utils gparted plasma-nm sddm sddm-kcm firefox firefox-i18n-de plasma kde-applications gst-libav gst-plugins-good gst-plugins-ugly gst-plugins-bad pulseaudio-alsa pulseaudio-bluetooth bluez-utils bluez texlive-most biber texstudio sane libreoffice-fresh hunspell hunspell-de sane skanlite vlc flatpak 
 
 # Enable the services
 sudo systemctl enable NetworkManager
