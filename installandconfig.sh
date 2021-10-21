@@ -308,8 +308,8 @@ printf "%s" "${green}Install yay for AUR-Packages. ${end}"
 ## remove password of user so sudo -u will not ask for password
 arch-chroot /mnt passwd -d "$user"
 ## Now git and install
-arch-chroot /mnt sudo -u "$user" git -C /home/"$user" clone https://aur.archlinux.org/yay.git  &> /dev/null
-arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/yay; makepkg --noconfirm"
+arch-chroot /mnt sudo -u "$user" git clone https://aur.archlinux.org/yay.git &> /dev/null
+arch-chroot /mnt sudo -u "$user" sh -c "cd /home/"$user"/yay; makepkg --noconfirm --needed"
 rm -r /mnt/home/"$user"/yay
 
 ## Password for root and user
