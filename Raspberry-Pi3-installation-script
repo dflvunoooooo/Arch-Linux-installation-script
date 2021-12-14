@@ -91,6 +91,14 @@ if [ $modell = "zero" ];
         fi
         pv ArchLinuxARM-rpi-latest.tar.gz | sudo tar -C $mountroot -xz
     fi
+    #### WLAN einrichten
+    if [ "$wlan" = "yes" ] || [ "$wlan" = "ja" ];
+    then
+        printf "[Match]\nName=wlan0\n\n[Network]\nDHCP=yes" > $mountroot/etc/systemd/network/wlan0.network
+        printf "country=AT\nctrl_interface=DIR=/run/wpa_supplicant\nctrl_interface_group=wheel\nupdate_config=1" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+        wpa_passphrase "${ssid}" "${passwort}" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+        ln -s /usr/lib/systemd/system/wpa_supplicant@.service $mountroot/etc/systemd/system/multi-user.target.wants/wpa_supplicant@wlan0.service
+    fi
 fi
 
 if [ "$modell" = 2 ] || [ "$modell" = 3 ]; 
@@ -125,15 +133,6 @@ if [ "$version" = "aarch64" ];
     fi
     pv ArchLinuxARM-rpi-aarch64-latest.tar.gz | sudo tar -C $mountroot -xz
     sudo sed -i 's/mmcblk0/mmcblk1/g' $mountroot/etc/fstab
-fi
-
-#### WLAN einrichten
-if [ "$wlan" = "yes" ] || [ "$wlan" = "ja" ];
-then
-    printf "[Match]\nName=wlan0\n\n[Network]\nDHCP=yes" > $mountroot/etc/systemd/network/wlan0.network
-    printf "country=AT\nctrl_interface=DIR=/run/wpa_supplicant\nctrl_interface_group=wheel\nupdate_config=1" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
-    wpa_passphrase "${ssid}" "${passwort}" > $mountroot/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
-    ln -s /usr/lib/systemd/system/wpa_supplicant@.service $mountroot/etc/systemd/system/multi-user.target.wants/wpa_supplicant@wlan0.service
 fi
 
 sudo mv /mnt/arch/root/boot/* /mnt/arch/boot
