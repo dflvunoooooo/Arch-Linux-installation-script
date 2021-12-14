@@ -23,16 +23,17 @@ then
     wlan=$(dialog --stdout --inputbox "Soll WLAN eingerichtet werden?" 0 0) || exit 1
     clear
     : ${wlan:?"You have to answer with yes or no."}
-fi
 
-if [ $wlan = "yes" ] || [ $wlan = "ja" ];
-then 
-    ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
-    clear
-    : ${ssid:?"You have to answer with yes or no."}
-    passwort=$(dialog --stdout --inputbox "Wie lautet das Passwort?" 0 0) || exit 1
-    clear
-    : ${passwort:?"You have to answer with yes or no."}
+    if [ $wlan = "yes" ] || [ $wlan = "ja" ];
+    then 
+        ssid=$(dialog --stdout --inputbox "Wie lautet die SSID?" 0 0) || exit 1
+        clear
+        : ${ssid:?"You have to answer with yes or no."}
+        passwort=$(dialog --stdout --inputbox "Wie lautet das Passwort?" 0 0) || exit 1
+        clear
+        : ${passwort:?"You have to answer with yes or no."}
+    fi
+
 fi
 
 pfad="/dev/$block"
