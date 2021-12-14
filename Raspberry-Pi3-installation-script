@@ -105,11 +105,11 @@ if [ "$modell" = 2 ] || [ "$modell" = 3 ];
     then
     if [ "$version" = normal ]; 
         then
-        FILE=ArchLinuxARM-rpi-latest.tar.gz
+        FILE=ArchLinuxARM-rpi-armv7-latest.tar.gz
         if ! test -f "$FILE"; then
-            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-latest.tar.gz
+            sudo wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-armv7-latest.tar.gz
         fi
-        pv ArchLinuxARM-rpi-latest.tar.gz | sudo tar -C $mountroot -xz
+        pv ArchLinuxARM-rpi-armv7-latest.tar.gz | sudo tar -C $mountroot -xz
     fi
 fi
 
