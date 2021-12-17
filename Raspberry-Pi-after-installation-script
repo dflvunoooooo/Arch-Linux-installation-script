@@ -72,12 +72,12 @@ rm -r /home/alarm/yay
 ### Install Python GPIO Modul
 if [ $pythongpio == "yes" ]
 then 
-    pip install  gpiozero
+    CFLAGS="-fcommon" pip install rpi.gpio
 fi
 
 
 ### Install AUR packages
-su - alarm -c 'yay -S --noconfirm pi-bluetooth'
+su - alarm -c 'yay -S --noconfirm pi-bluetooth python-devtools'
 
 ### Localisation
 printf "${hostname}" > /etc/hostname
