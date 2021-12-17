@@ -47,11 +47,15 @@ roomass=$(dialog --stdout --inputbox "Soll Room-Assistant installiert werden?" 0
 clear
 : ${roomass:?"You have to answer!"}
 
+pythongpio=$(dialog --stdout --inputbox "Soll das Python-Modul für GPIO installiert werden?" 0 0) || exit 1
+clear
+: ${pythongpio:?"You have to answer!"}
+
 
 ### Initialize pacman, update and install packages
 pacman-key --init
 pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez nss-mdns alsa-utils 
+pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez nss-mdns alsa-utils python-pip
 
 
 ### Allow group wheel for sudo
@@ -64,8 +68,16 @@ printf "\nalarm ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 su - alarm -c 'git clone https://aur.archlinux.org/yay.git;cd /home/alarm/yay;makepkg -si --noconfirm --needed;cd'
 rm -r /home/alarm/yay
 
+
+### Install Python GPIO Modul
+if [ $pythongpio == "yes" ]
+then 
+    pip install  rpi.gpio
+fi
+
+
 ### Install AUR packages
-su - alarm -c 'yay -S --noconfirm python-raspberry-gpio pi-bluetooth'
+su - alarm -c 'yay -S --noconfirm pi-bluetooth'
 
 ### Localisation
 printf "${hostname}" > /etc/hostname
