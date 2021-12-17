@@ -72,7 +72,7 @@ rm -r /home/alarm/yay
 ### Install Python GPIO Modul
 if [ $pythongpio == "yes" ]
 then 
-    pip install  rpi.gpio
+    pip install  gpiozero
 fi
 
 
