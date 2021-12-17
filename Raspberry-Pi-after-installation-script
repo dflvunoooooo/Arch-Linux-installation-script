@@ -72,7 +72,7 @@ rm -r /home/alarm/yay
 ### Install Python GPIO Modul
 if [ $pythongpio == "yes" ]
 then 
-    CFLAGS="-fcommon" pip install rpi.gpio
+    CFLAGS="-fcommon" pip install rpi.gpio systemd
 fi
 
 
