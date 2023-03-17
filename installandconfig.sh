@@ -108,7 +108,7 @@ printf "%s\n" "${green}Setup done, root and boot are mounted under /mnt.${end}"
 
 ## Install Arch Linux and a few packages
 printf "%s" "${green}Installing Arch Linux and a few packages.${end}"
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools go inetutils dialog
+pacstrap /mnt base base-devel linux linux-firmware intel-ucode archlinux-keyring bash-completion usbutils nano dbus avahi git wget man openssh neofetch htop smartmontools go inetutils dialog pacman-contrib
 printf "%s\n" "${green}Done.${end}"
 
 ## Basic system configuration 
@@ -277,7 +277,7 @@ printf "%s" "${green}Adding the user and config environment. ${end}"
 arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
 
 ## Aliase Festlegen
-printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto --block-size=M'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo; echo Update Flatpak; sudo flatpak update --noninteractive --assumeyes; echo Update Snap; sudo snap refresh; echo ----------------;  echo Update Finished;'" >> /etc/bash.bashrc
+printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto --block-size=M'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo; echo Update Flatpak; sudo flatpak update --noninteractive --assumeyes; echo Update Snap; sudo snap refresh; echo ----------------;  echo Update Finished;'\ncomplete -cf sudo man which" >> /etc/bash.bashrc
 
 
 ## Systemd activieren
@@ -289,6 +289,7 @@ arch-chroot /mnt systemctl enable sshd.service
 arch-chroot /mnt systemctl enable systemd-timesyncd.service
 arch-chroot /mnt systemctl enable reflector.timer
 arch-chroot /mnt systemctl enable fstrim.timer
+arch-chroot /mnt systemctl enable paccache.timer
 if [ "$ssd" = "yes" ]; then
   arch-chroot /mnt systemctl enable fstrim.timer
 fi
