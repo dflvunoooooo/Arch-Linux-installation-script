@@ -82,6 +82,7 @@ su - alarm -c 'yay -S --noconfirm pi-bluetooth python-devtools'
 ### Localisation
 printf "${hostname}" > /etc/hostname
 timedatectl set-timezone Europe/Berlin  
+localectl set-locale LANG=de_DE.UTF-8
 
 
 ## SSH configuration
