@@ -55,7 +55,7 @@ clear
 ### Initialize pacman, update and install packages
 pacman-key --init
 pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez nss-mdns alsa-utils python python-pip
+pacman -Syu --noconfirm --needed base-devel htop unzip zip tar man dialog git neofetch wget linux-raspberrypi-headers bluez nss-mdns alsa-utils python python-pip pacman-contrib
 
 
 ### Allow group wheel for sudo
