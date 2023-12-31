@@ -279,7 +279,7 @@ printf "%s" "${green}Adding the user and config environment. ${end}"
 arch-chroot /mnt useradd -m -G users,wheel,video,audio,storage,input -s /bin/bash "$user"
 
 ## Aliase Festlegen
-printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto --block-size=M'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo; echo Pacman-Cache bereinigen; sudo paccache -rk 2; echo; echo Update Snap; sudo snap refresh; echo ----------------;  echo Update Finished;'\ncomplete -cf sudo man which" >> /etc/bash.bashrc
+printf "\n\n###Alias\nalias ls='ls -Alh --group-directories-first --color=auto --block-size=M'\nalias ip='ip -c=auto'\nalias update='yay -Syu --noconfirm;  echo;  echo Cleaning  Orphans;  sudo pacman -Rns $(pacman -Qtdq) --noconfirm;  echo; echo Pacman-Cache bereinigen; sudo paccache -rk 2; echo yay-Cache bereinigen; yay -Sc --noconfirm; echo; echo Update Snap; sudo snap refresh; echo Texlive update; sudo tlmgr update --all; echo ----------------;  echo Update Finished;'\ncomplete -cf sudo man which" >> /etc/bash.bashrc
 
 
 ## Systemd activieren
